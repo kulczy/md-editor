@@ -66,7 +66,7 @@ function setupResident() {
 
 function createWindow() {
   win = new BrowserWindow({
-    width: 450,
+    width: 650,
     height: 640,
     vibrancy: 'under-window', // native macOS translucency (frosted glass behind the window)
     backgroundColor: '#00000000', // transparent so the vibrancy material shows through
