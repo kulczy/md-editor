@@ -72,18 +72,6 @@ function setTitle(rel) { titlebar.textContent = rel ? rel.split('/').pop().repla
 // Reveal the macOS traffic lights when the cursor is near the top of the window.
 // The bar itself is a drag region (-webkit-app-region: drag) and swallows mouse events,
 // so we watch document-level mousemove (the editor fires it) and trigger by Y position.
-// The title bar is a drag region (swallows its own mouse events), so reveal the macOS
-// traffic lights by watching the cursor's Y in the editor. Hysteresis (show <58, hide >92)
-// avoids flicker at a single boundary. On mouseleave, leaving upward (into the bar) keeps
-// them lit; leaving lower/sideways (out of the window) hides them.
-let lightsOn = false
-function setLights(on) { if (on !== lightsOn) { lightsOn = on; window.api.setButtons(on) } }
-document.addEventListener('mousemove', (e) => {
-  if (e.clientY < 58) setLights(true)
-  else if (e.clientY > 92) setLights(false)
-})
-document.addEventListener('mouseleave', (e) => setLights(e.clientY < 58))
-
 const editor = createEditor({ parent: app, onChange: scheduleSave })
 export { editor }
 
