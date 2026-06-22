@@ -1,4 +1,5 @@
 import { createEditor } from './editor.js'
+import { initPalette, openPalette, isPaletteOpen, closePalette } from './palette.js'
 
 const app = document.getElementById('app')
 app.textContent = ''
@@ -6,6 +7,27 @@ app.textContent = ''
 export let currentFolder = null
 export let currentFile = null
 let saveTimer = null
+
+export let fileIndex = []
+export async function refreshIndex() {
+  fileIndex = currentFolder ? await window.api.fs.list(currentFolder) : []
+}
+
+let recentFiles = []
+export async function pushRecent(rel) {
+  recentFiles = [rel, ...recentFiles.filter((r) => r !== rel)].slice(0, 50)
+  await window.api.state.set({ recentFiles })
+}
+
+initPalette({
+  getFiles: () => fileIndex,
+  getRecent: () => recentFiles,
+  onOpenFile: (rel) => openFile(rel)
+})
+
+window.addEventListener('keydown', (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'p') { e.preventDefault(); openPalette({ mode: 'files' }) }
+})
 
 const editor = createEditor({ parent: app, onChange: scheduleSave })
 export { editor }
@@ -28,6 +50,7 @@ export async function openFile(rel) {
   editor.setDoc(text)
   currentFile = rel
   await window.api.state.set({ lastFile: rel })
+  await pushRecent(rel)
 }
 
 export async function setFolder(folder) {
@@ -40,6 +63,8 @@ export async function setFolder(folder) {
   const s = await window.api.state.get()
   if (s.lastFolder) {
     currentFolder = s.lastFolder
+    recentFiles = s.recentFiles || []
+    await refreshIndex()
     if (s.lastFile) {
       try { await openFile(s.lastFile) } catch { currentFile = null }
     }
