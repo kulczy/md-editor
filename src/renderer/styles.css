@@ -1,0 +1,8 @@
+:root { color-scheme: light dark; }
+* { box-sizing: border-box; }
+html, body, #app { height: 100%; margin: 0; }
+body { font: 16px/1.6 -apple-system, system-ui, sans-serif; }
+#app { display: flex; flex-direction: column; }
+.cm-editor { height: 100%; }
+.cm-content { max-width: 720px; margin: 0 auto; padding: 48px 24px; }
+.cm-editor.cm-focused { outline: none; }
