@@ -12,5 +12,6 @@ contextBridge.exposeInMainWorld('api', {
     get: () => ipcRenderer.invoke('state:get'),
     set: (patch) => ipcRenderer.invoke('state:set', patch)
   },
-  pickFolder: () => ipcRenderer.invoke('pickFolder')
+  pickFolder: () => ipcRenderer.invoke('pickFolder'),
+  hideWindow: () => ipcRenderer.invoke('window:hide')
 })

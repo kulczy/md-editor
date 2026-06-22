@@ -43,6 +43,13 @@ window.addEventListener('keydown', (e) => {
   if ((e.metaKey || e.ctrlKey) && e.key === 'p') { e.preventDefault(); openPalette({ mode: 'files' }) }
 })
 
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    // Palette owns Esc while open (it stops propagation). If we get here, nothing is open → hide.
+    if (!isPaletteOpen()) { e.preventDefault(); save(); window.api.hideWindow() }
+  }
+}, true) // capture: but palette's handler calls stopPropagation when it consumes Esc
+
 const editor = createEditor({ parent: app, onChange: scheduleSave })
 export { editor }
 

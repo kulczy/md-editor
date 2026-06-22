@@ -1,8 +1,11 @@
-import { app, BrowserWindow, ipcMain, dialog } from 'electron'
+import { app, BrowserWindow, ipcMain, dialog, Tray, Menu, globalShortcut, nativeImage } from 'electron'
 import { join } from 'node:path'
 import { existsSync } from 'node:fs'
 import * as files from './files.js'
 import store from './store.js'
+
+if (!app.requestSingleInstanceLock()) app.quit()
+app.on('second-instance', () => { if (win) { win.show(); win.focus() } })
 
 ipcMain.handle('fs:list', (_e, root) => files.listMarkdown(root))
 ipcMain.handle('fs:read', (_e, root, rel) => files.readFile(root, rel))
@@ -26,6 +29,34 @@ ipcMain.handle('pickFolder', async () => {
 })
 
 let win = null
+let tray = null
+let isQuitting = false
+
+function toggleWindow() {
+  if (!win) return createWindow()
+  if (win.isVisible() && win.isFocused()) win.hide()
+  else { win.show(); win.focus() }
+}
+
+function setupResident() {
+  // Hide instead of close; keep process alive.
+  win.on('close', (e) => { if (!isQuitting) { e.preventDefault(); win.hide() } })
+
+  const icon = nativeImage.createFromPath(join(import.meta.dirname, '../../build/iconTemplate.png'))
+  icon.setTemplateImage(true)
+  tray = new Tray(icon)
+  tray.setToolTip('md')
+  tray.setContextMenu(Menu.buildFromTemplate([
+    { label: 'Show', click: () => { win.show(); win.focus() } },
+    { type: 'separator' },
+    { label: 'Quit', click: () => { isQuitting = true; app.quit() } }
+  ]))
+  tray.on('click', toggleWindow)
+
+  const hotkey = store.get('hotkey')
+  const ok = globalShortcut.register(hotkey, toggleWindow)
+  if (!ok) console.warn(`[md] global hotkey "${hotkey}" is taken — skipping`) // ponytail: no rebind UI in v1
+}
 
 function createWindow() {
   win = new BrowserWindow({
@@ -38,7 +69,12 @@ function createWindow() {
   } else {
     win.loadFile(join(import.meta.dirname, '../renderer/index.html'))
   }
+  setupResident()
 }
 
+ipcMain.handle('window:hide', () => win?.hide())
+
 app.whenReady().then(createWindow)
-app.on('window-all-closed', () => {}) // ponytail: resident app, don't quit on close — Task 9 makes this real
+app.on('window-all-closed', () => {}) // ponytail: resident app, don't quit on close
+app.on('before-quit', () => { isQuitting = true })
+app.on('will-quit', () => globalShortcut.unregisterAll())
