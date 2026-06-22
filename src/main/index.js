@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog, Tray, Menu, globalShortcut, nativeImage, screen } from 'electron'
+import { app, BrowserWindow, ipcMain, dialog, Tray, Menu, globalShortcut, nativeImage } from 'electron'
 import { join } from 'node:path'
 import { existsSync } from 'node:fs'
 import * as files from './files.js'
@@ -70,7 +70,7 @@ function createWindow() {
     height: 640,
     vibrancy: 'under-window', // native macOS translucency (frosted glass behind the window)
     backgroundColor: '#00000000', // transparent so the vibrancy material shows through
-    titleBarStyle: 'hidden', // frameless; we toggle traffic lights ourselves on bar hover
+    titleBarStyle: 'customButtonsOnHover', // frameless; macOS reveals the traffic lights on hover (native)
     trafficLightPosition: { x: 18, y: 18 }, // center the lights in the taller title strip
     webPreferences: {
       preload: join(import.meta.dirname, '../preload/index.cjs'), // CommonJS preload (sandbox requires CJS, not ESM)
@@ -79,41 +79,12 @@ function createWindow() {
     }
   })
   win.setAlwaysOnTop(store.get('floatOn'))
-  if (process.platform === 'darwin') win.setWindowButtonVisibility(false) // hidden until cursor is near the bar
   if (process.env.ELECTRON_RENDERER_URL) {
     win.loadURL(process.env.ELECTRON_RENDERER_URL)
   } else {
     win.loadFile(join(import.meta.dirname, '../renderer/index.html'))
   }
-  setupTrafficLights()
   setupResident()
-}
-
-// The title strip is a drag region, which swallows mouse events — and there's no event for
-// "cursor left the window over a drag region". So poll the real cursor vs the window bounds
-// while focused: reveal the traffic lights when the cursor is in the top strip, hide them
-// when it moves down (hysteresis) or leaves the window entirely. macOS only.
-let lightsVisible = false
-let lightsPoll = null
-function setLights(v) { if (v !== lightsVisible) { lightsVisible = v; win.setWindowButtonVisibility(v) } }
-function pollLights() {
-  if (!win || !win.isVisible()) return
-  const p = screen.getCursorScreenPoint()
-  const b = win.getBounds()
-  const inside = p.x >= b.x && p.x < b.x + b.width && p.y >= b.y && p.y < b.y + b.height
-  const y = p.y - b.y
-  if (!inside) setLights(false)
-  else if (y < 58) setLights(true)
-  else if (y > 92) setLights(false)
-}
-function setupTrafficLights() {
-  if (process.platform !== 'darwin') return
-  const start = () => { if (!lightsPoll) lightsPoll = setInterval(pollLights, 90) }
-  const stop = () => { clearInterval(lightsPoll); lightsPoll = null; setLights(false) }
-  win.on('focus', start)
-  win.on('blur', stop)
-  win.on('hide', stop)
-  if (win.isFocused()) start()
 }
 
 ipcMain.handle('window:toggleFloat', () => {
