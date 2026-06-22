@@ -1,5 +1,12 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'node:path'
+import * as files from './files.js'
+
+ipcMain.handle('fs:list', (_e, root) => files.listMarkdown(root))
+ipcMain.handle('fs:read', (_e, root, rel) => files.readFile(root, rel))
+ipcMain.handle('fs:write', (_e, root, rel, content) => files.writeFile(root, rel, content))
+ipcMain.handle('fs:rename', (_e, root, rel, newRel) => files.renameFile(root, rel, newRel))
+ipcMain.handle('fs:delete', (_e, root, rel) => files.deleteFile(root, rel))
 
 let win = null
 

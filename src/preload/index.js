@@ -1,3 +1,11 @@
-import { contextBridge } from 'electron'
-// API surface filled in later tasks.
-contextBridge.exposeInMainWorld('api', {})
+import { contextBridge, ipcRenderer } from 'electron'
+
+contextBridge.exposeInMainWorld('api', {
+  fs: {
+    list: (root) => ipcRenderer.invoke('fs:list', root),
+    read: (root, rel) => ipcRenderer.invoke('fs:read', root, rel),
+    write: (root, rel, content) => ipcRenderer.invoke('fs:write', root, rel, content),
+    rename: (root, rel, newRel) => ipcRenderer.invoke('fs:rename', root, rel, newRel),
+    delete: (root, rel) => ipcRenderer.invoke('fs:delete', root, rel)
+  }
+})
