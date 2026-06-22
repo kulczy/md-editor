@@ -159,7 +159,8 @@ function renderEmptyIfNeeded() {
     }
   } else if (e) e.remove()
 }
-renderEmptyIfNeeded()
+// Note: don't call renderEmptyIfNeeded() here — currentFolder isn't restored yet, which
+// would flash the empty state on launch. The restore block below calls it once state loads.
 
 window.api.onFsEvent(async (ev) => {
   await refreshIndex()
