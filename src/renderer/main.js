@@ -69,11 +69,13 @@ const titlebar = document.createElement('div')
 titlebar.className = 'titlebar'
 app.appendChild(titlebar)
 function setTitle(rel) { titlebar.textContent = rel ? rel.split('/').pop().replace(/\.md$/, '') : '' }
-// Reveal the macOS traffic lights while hovering anywhere on the bar (small hide delay so
-// moving the cursor onto the native buttons doesn't make them vanish before a click).
-let btnHideTimer
-titlebar.addEventListener('mouseenter', () => { clearTimeout(btnHideTimer); window.api.setButtons(true) })
-titlebar.addEventListener('mouseleave', () => { btnHideTimer = setTimeout(() => window.api.setButtons(false), 250) })
+// Reveal the macOS traffic lights when the cursor is near the top of the window.
+// The bar itself is a drag region (-webkit-app-region: drag) and swallows mouse events,
+// so we watch document-level mousemove (the editor fires it) and trigger by Y position.
+let lightsOn = false
+function setLights(on) { if (on !== lightsOn) { lightsOn = on; window.api.setButtons(on) } }
+document.addEventListener('mousemove', (e) => setLights(e.clientY < 76)) // 52px bar + margin
+document.addEventListener('mouseleave', () => setLights(false)) // cursor left the window
 
 const editor = createEditor({ parent: app, onChange: scheduleSave })
 export { editor }
