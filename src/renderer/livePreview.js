@@ -1,4 +1,4 @@
-import { ViewPlugin, Decoration, EditorView } from '@codemirror/view'
+import { ViewPlugin, Decoration } from '@codemirror/view'
 import { syntaxTree } from '@codemirror/language'
 import { RangeSetBuilder } from '@codemirror/state'
 

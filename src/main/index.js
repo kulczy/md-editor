@@ -68,7 +68,11 @@ function createWindow() {
   win = new BrowserWindow({
     width: 900,
     height: 640,
-    webPreferences: { preload: join(import.meta.dirname, '../preload/index.mjs') } // electron-vite emits preload as .mjs under "type":"module"
+    webPreferences: {
+      preload: join(import.meta.dirname, '../preload/index.mjs'), // electron-vite emits preload as .mjs under "type":"module"
+      contextIsolation: true, // pin secure defaults explicitly (trust boundary)
+      nodeIntegration: false
+    }
   })
   win.setAlwaysOnTop(store.get('floatOn'))
   if (process.env.ELECTRON_RENDERER_URL) {
