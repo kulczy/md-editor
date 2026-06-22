@@ -28,6 +28,12 @@ ipcMain.handle('pickFolder', async () => {
   return r.canceled ? null : r.filePaths[0]
 })
 
+let stopWatch = null
+ipcMain.handle('fs:watch', (e, root) => {
+  stopWatch?.()
+  stopWatch = root ? files.watchFolder(root, (ev) => e.sender.send('fs:event', ev)) : null
+})
+
 let win = null
 let tray = null
 let isQuitting = false
@@ -86,4 +92,4 @@ ipcMain.handle('window:hide', () => win?.hide())
 app.whenReady().then(createWindow)
 app.on('window-all-closed', () => {}) // ponytail: resident app, don't quit on close
 app.on('before-quit', () => { isQuitting = true })
-app.on('will-quit', () => globalShortcut.unregisterAll())
+app.on('will-quit', () => { stopWatch?.(); globalShortcut.unregisterAll() })

@@ -24,3 +24,6 @@ body { font: 16px/1.6 -apple-system, system-ui, sans-serif; }
 .palette-list li.active { background: rgba(127,127,127,.2); }
 
 .pin-indicator { position: fixed; top: 8px; right: 10px; font-size: 14px; opacity: .7; z-index: 50; }
+
+#empty { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+#empty button { font: inherit; padding: 12px 20px; border-radius: 8px; cursor: pointer; }

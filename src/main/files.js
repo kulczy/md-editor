@@ -1,5 +1,6 @@
 import { promises as fs } from 'node:fs'
 import { join, relative, dirname, sep } from 'node:path'
+import chokidar from 'chokidar'
 
 const toPosix = (p) => p.split(sep).join('/')
 
@@ -33,3 +34,15 @@ export async function renameFile(root, rel, newRel) {
 }
 
 export const deleteFile = (root, rel) => fs.rm(join(root, rel))
+
+export function watchFolder(root, send) {
+  const w = chokidar.watch(root, {
+    ignoreInitial: true,
+    ignored: (p) => p.includes('node_modules') || /(^|[/\\])\../.test(p)
+  })
+  const emit = (type) => (full) => {
+    if (full.endsWith('.md')) send({ type, rel: relative(root, full).split(sep).join('/') })
+  }
+  w.on('add', emit('add')).on('change', emit('change')).on('unlink', emit('unlink'))
+  return () => w.close()
+}

@@ -8,6 +8,7 @@ app.textContent = ''
 export let currentFolder = null
 export let currentFile = null
 let saveTimer = null
+let dirty = false
 
 export let fileIndex = []
 export async function refreshIndex() {
@@ -68,6 +69,7 @@ export { editor }
 
 function scheduleSave(text) {
   if (!currentFolder || !currentFile) return
+  dirty = true
   clearTimeout(saveTimer)
   saveTimer = setTimeout(() => save(text), 500) // ponytail: 500ms debounce; tune if it feels laggy
 }
@@ -76,12 +78,14 @@ export async function save(text = editor.getDoc()) {
   if (!currentFolder || !currentFile) return
   clearTimeout(saveTimer)
   await window.api.fs.write(currentFolder, currentFile, text)
+  dirty = false
 }
 
 export async function openFile(rel) {
   await save() // flush any pending edits to the file we're leaving
   const text = await window.api.fs.read(currentFolder, rel)
   editor.setDoc(text)
+  dirty = false // buffer now matches disk; setDoc fires onChange→scheduleSave so reset after
   currentFile = rel
   await window.api.state.set({ lastFile: rel })
   await pushRecent(rel)
@@ -90,7 +94,38 @@ export async function openFile(rel) {
 export async function setFolder(folder) {
   currentFolder = folder
   await window.api.state.set({ lastFolder: folder })
+  await window.api.watch(currentFolder)
 }
+
+function renderEmptyIfNeeded() {
+  let e = document.getElementById('empty')
+  if (!currentFolder) {
+    if (!e) {
+      e = document.createElement('div'); e.id = 'empty'
+      e.innerHTML = `<button id="open-folder-btn">Open folder…</button>`
+      document.body.appendChild(e)
+      e.querySelector('#open-folder-btn').onclick = async () => {
+        const f = await window.api.pickFolder()
+        if (f) { await setFolder(f); await refreshIndex(); e.remove() }
+      }
+    }
+  } else if (e) e.remove()
+}
+renderEmptyIfNeeded()
+
+window.api.onFsEvent(async (ev) => {
+  await refreshIndex()
+  if (ev.rel === currentFile) {
+    if (ev.type === 'unlink') { editor.setDoc(''); currentFile = null; renderEmptyIfNeeded() }
+    else if (ev.type === 'change' && !dirty) {
+      const text = await window.api.fs.read(currentFolder, ev.rel)
+      if (text !== editor.getDoc()) {
+        editor.setDoc(text)
+        dirty = false // reset: programmatic reload matches disk, don't treat as user edit
+      }
+    }
+  }
+})
 
 // Restore last session.
 ;(async () => {
@@ -99,10 +134,12 @@ export async function setFolder(folder) {
     currentFolder = s.lastFolder
     recentFiles = s.recentFiles || []
     await refreshIndex()
+    await window.api.watch(currentFolder)
     if (s.lastFile) {
       try { await openFile(s.lastFile) } catch { currentFile = null }
     }
   }
+  renderEmptyIfNeeded()
 })()
 
 window.addEventListener('beforeunload', () => { save() })
