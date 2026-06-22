@@ -6,3 +6,12 @@ body { font: 16px/1.6 -apple-system, system-ui, sans-serif; }
 .cm-editor { height: 100%; }
 .cm-content { max-width: 720px; margin: 0 auto; padding: 48px 24px; }
 .cm-editor.cm-focused { outline: none; }
+
+.cm-md-h1 { font-size: 1.8em; font-weight: 700; }
+.cm-md-h2 { font-size: 1.5em; font-weight: 700; }
+.cm-md-h3 { font-size: 1.25em; font-weight: 600; }
+.cm-md-h4, .cm-md-h5, .cm-md-h6 { font-weight: 600; }
+.cm-md-strong { font-weight: 700; }
+.cm-md-em { font-style: italic; }
+.cm-md-strike { text-decoration: line-through; }
+.cm-md-code { font-family: ui-monospace, monospace; background: rgba(127,127,127,.15); padding: .1em .3em; border-radius: 4px; }

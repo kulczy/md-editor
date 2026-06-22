@@ -3,6 +3,7 @@ import { EditorState } from '@codemirror/state'
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
 import { markdown } from '@codemirror/lang-markdown'
 import { syntaxHighlighting, defaultHighlightStyle } from '@codemirror/language'
+import livePreview from './livePreview.js'
 
 export function createEditor({ parent, onChange }) {
   const view = new EditorView({
@@ -13,6 +14,7 @@ export function createEditor({ parent, onChange }) {
         history(),
         keymap.of([...defaultKeymap, ...historyKeymap]),
         markdown(),
+        livePreview,
         syntaxHighlighting(defaultHighlightStyle),
         EditorView.lineWrapping,
         EditorView.updateListener.of((u) => { if (u.docChanged) onChange(view.state.doc.toString()) })
