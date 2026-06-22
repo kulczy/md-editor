@@ -64,6 +64,7 @@ function createWindow() {
     height: 640,
     webPreferences: { preload: join(import.meta.dirname, '../preload/index.mjs') } // electron-vite emits preload as .mjs under "type":"module"
   })
+  win.setAlwaysOnTop(store.get('floatOn'))
   if (process.env.ELECTRON_RENDERER_URL) {
     win.loadURL(process.env.ELECTRON_RENDERER_URL)
   } else {
@@ -71,6 +72,14 @@ function createWindow() {
   }
   setupResident()
 }
+
+ipcMain.handle('window:toggleFloat', () => {
+  const next = !win.isAlwaysOnTop()
+  win.setAlwaysOnTop(next)
+  store.set({ floatOn: next })
+  return next
+})
+ipcMain.handle('window:getFloat', () => win.isAlwaysOnTop())
 
 ipcMain.handle('window:hide', () => win?.hide())
 

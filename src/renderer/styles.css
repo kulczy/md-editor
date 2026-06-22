@@ -22,3 +22,5 @@ body { font: 16px/1.6 -apple-system, system-ui, sans-serif; }
 .palette-list { list-style: none; margin: 0; padding: 4px; max-height: 50vh; overflow-y: auto; }
 .palette-list li { padding: 8px 12px; border-radius: 6px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .palette-list li.active { background: rgba(127,127,127,.2); }
+
+.pin-indicator { position: fixed; top: 8px; right: 10px; font-size: 14px; opacity: .7; z-index: 50; }

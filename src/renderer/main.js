@@ -20,6 +20,19 @@ export async function pushRecent(rel) {
   await window.api.state.set({ recentFiles })
 }
 
+const pin = document.createElement('div')
+pin.className = 'pin-indicator'
+pin.textContent = '📌'
+document.body.appendChild(pin)
+async function syncPin() { pin.style.display = (await window.api.getFloat()) ? 'block' : 'none' }
+syncPin()
+
+window.addEventListener('keydown', async (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 't') {
+    e.preventDefault(); await window.api.toggleFloat(); syncPin()
+  }
+})
+
 const ctx = {
   currentFolder: () => currentFolder,
   currentFile: () => currentFile,
@@ -28,7 +41,7 @@ const ctx = {
   refreshIndex,
   pickFolder: window.api.pickFolder,
   setFolder,
-  toggleFloat: () => window.api.toggleFloat() // defined in Task 10
+  toggleFloat: async () => { await window.api.toggleFloat(); syncPin() }
 }
 
 initPalette({
