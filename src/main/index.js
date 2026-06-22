@@ -68,6 +68,9 @@ function createWindow() {
   win = new BrowserWindow({
     width: 900,
     height: 640,
+    vibrancy: 'under-window', // native macOS translucency (frosted glass behind the window)
+    backgroundColor: '#00000000', // transparent so the vibrancy material shows through
+    titleBarStyle: 'customButtonsOnHover', // frameless; traffic lights appear on hover top-left
     webPreferences: {
       preload: join(import.meta.dirname, '../preload/index.cjs'), // CommonJS preload (sandbox requires CJS, not ESM)
       contextIsolation: true, // pin secure defaults explicitly (trust boundary)

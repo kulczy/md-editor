@@ -64,6 +64,12 @@ window.addEventListener('keydown', (e) => {
   }
 }, true) // capture: but palette's handler calls stopPropagation when it consumes Esc
 
+// Draggable title strip (frameless window has no native title). Centered note name.
+const titlebar = document.createElement('div')
+titlebar.className = 'titlebar'
+app.appendChild(titlebar)
+function setTitle(rel) { titlebar.textContent = rel ? rel.split('/').pop().replace(/\.md$/, '') : '' }
+
 const editor = createEditor({ parent: app, onChange: scheduleSave })
 export { editor }
 
@@ -87,6 +93,7 @@ export async function openFile(rel) {
   editor.setDoc(text)
   clearTimeout(saveTimer); dirty = false // buffer matches disk; cancel the save setDoc just armed
   currentFile = rel
+  setTitle(rel)
   await window.api.state.set({ lastFile: rel })
   await pushRecent(rel)
 }
@@ -116,7 +123,7 @@ renderEmptyIfNeeded()
 window.api.onFsEvent(async (ev) => {
   await refreshIndex()
   if (ev.rel === currentFile) {
-    if (ev.type === 'unlink') { editor.setDoc(''); currentFile = null; clearTimeout(saveTimer); dirty = false; renderEmptyIfNeeded() }
+    if (ev.type === 'unlink') { editor.setDoc(''); currentFile = null; setTitle(''); clearTimeout(saveTimer); dirty = false; renderEmptyIfNeeded() }
     else if (ev.type === 'change' && !dirty) {
       const text = await window.api.fs.read(currentFolder, ev.rel)
       if (text !== editor.getDoc()) {
