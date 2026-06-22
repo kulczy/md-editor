@@ -28,6 +28,12 @@ body { font: 16px/1.6 -apple-system, system-ui, sans-serif; }
 .cm-md-em { font-style: italic; }
 .cm-md-strike { text-decoration: line-through; }
 .cm-md-code { font-family: ui-monospace, monospace; background: rgba(127,127,127,.15); padding: .1em .3em; border-radius: 4px; }
+/* Tier-2 polish */
+.cm-md-h1, .cm-md-h2 { margin-top: .6em; padding-bottom: .1em; }
+.cm-md-h3, .cm-md-h4, .cm-md-h5, .cm-md-h6 { margin-top: .4em; }
+.cm-md-quote { border-left: 3px solid rgba(127,127,127,.4); padding-left: .8em; opacity: .85; }
+.cm-md-hr { border-bottom: 1px solid rgba(127,127,127,.35); opacity: .5; }
+.cm-task-checkbox { margin: 0 .4em 0 0; vertical-align: -1px; cursor: pointer; }
 
 .palette-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.25); display: flex; justify-content: center; align-items: flex-start; z-index: 100; }
 .palette { margin-top: 12vh; width: min(640px, 90vw); background: Canvas; border: 1px solid rgba(127,127,127,.3); border-radius: 10px; box-shadow: 0 12px 40px rgba(0,0,0,.3); overflow: hidden; }

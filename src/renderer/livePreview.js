@@ -1,6 +1,25 @@
-import { ViewPlugin, Decoration } from '@codemirror/view'
+import { ViewPlugin, Decoration, WidgetType } from '@codemirror/view'
 import { syntaxTree } from '@codemirror/language'
 import { RangeSetBuilder } from '@codemirror/state'
+
+// Clickable checkbox replacing a GFM task marker "[ ]" / "[x]". Clicking toggles the
+// source char between the brackets (pos+1), then decorations rebuild with the new state.
+class CheckboxWidget extends WidgetType {
+  constructor(checked, pos) { super(); this.checked = checked; this.pos = pos }
+  eq(o) { return o.checked === this.checked && o.pos === this.pos }
+  toDOM(view) {
+    const box = document.createElement('input')
+    box.type = 'checkbox'
+    box.checked = this.checked
+    box.className = 'cm-task-checkbox'
+    box.onmousedown = (e) => {
+      e.preventDefault() // keep editor focus; we drive the toggle via a doc change
+      view.dispatch({ changes: { from: this.pos + 1, to: this.pos + 2, insert: this.checked ? ' ' : 'x' } })
+    }
+    return box
+  }
+  ignoreEvent() { return true }
+}
 
 // Node types whose marker children we hide; content gets a class.
 const STYLE = {
@@ -35,6 +54,15 @@ function buildDeco(view) {
           items.push({ from: node.from, to: node.from, line: { class: `cm-md-h${level}` } })
         } else if (STYLE[name]) {
           items.push({ from: node.from, to: node.to, mark: STYLE[name] })
+        } else if (name === 'TaskMarker') {
+          const checked = /[xX]/.test(view.state.doc.sliceString(node.from, node.to))
+          items.push({ from: node.from, to: node.to, widget: new CheckboxWidget(checked, node.from) })
+        } else if (name === 'HorizontalRule') {
+          items.push({ from: node.from, to: node.from, line: { class: 'cm-md-hr' } })
+        } else if (name === 'Blockquote') {
+          let l = view.state.doc.lineAt(node.from).number
+          const last = view.state.doc.lineAt(node.to).number
+          for (; l <= last; l++) items.push({ from: view.state.doc.line(l).from, to: view.state.doc.line(l).from, line: { class: 'cm-md-quote' } })
         }
         if (MARKS.has(name) && !onCursorLine(node.from) && node.to > node.from) {
           items.push({ from: node.from, to: node.to, hide: true })
@@ -46,6 +74,7 @@ function buildDeco(view) {
   items.sort((a, b) => a.from - b.from || (a.line ? -1 : 1))
   for (const it of items) {
     if (it.line) builder.add(it.from, it.from, Decoration.line({ class: it.line.class }))
+    else if (it.widget) builder.add(it.from, it.to, Decoration.replace({ widget: it.widget }))
     else if (it.hide) builder.add(it.from, it.to, hidden)
     else builder.add(it.from, it.to, Decoration.mark({ class: it.mark }))
   }

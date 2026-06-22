@@ -1,7 +1,7 @@
 import { EditorView, keymap } from '@codemirror/view'
 import { EditorState } from '@codemirror/state'
-import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
-import { markdown } from '@codemirror/lang-markdown'
+import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands'
+import { markdown, markdownLanguage, markdownKeymap } from '@codemirror/lang-markdown'
 import { syntaxHighlighting, defaultHighlightStyle } from '@codemirror/language'
 import livePreview from './livePreview.js'
 
@@ -12,8 +12,13 @@ export function createEditor({ parent, onChange }) {
       doc: '',
       extensions: [
         history(),
-        keymap.of([...defaultKeymap, ...historyKeymap]),
-        markdown(),
+        keymap.of([
+          ...markdownKeymap, // Enter continues/ends lists & quotes; Backspace removes empty markers
+          indentWithTab, // Tab / Shift-Tab to indent list items
+          ...defaultKeymap,
+          ...historyKeymap
+        ]),
+        markdown({ base: markdownLanguage }), // GFM: task lists, tables, strikethrough, autolinks
         livePreview,
         syntaxHighlighting(defaultHighlightStyle),
         EditorView.lineWrapping,
