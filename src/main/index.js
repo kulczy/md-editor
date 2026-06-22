@@ -69,7 +69,7 @@ function createWindow() {
     width: 900,
     height: 640,
     webPreferences: {
-      preload: join(import.meta.dirname, '../preload/index.mjs'), // electron-vite emits preload as .mjs under "type":"module"
+      preload: join(import.meta.dirname, '../preload/index.cjs'), // CommonJS preload (sandbox requires CJS, not ESM)
       contextIsolation: true, // pin secure defaults explicitly (trust boundary)
       nodeIntegration: false
     }
