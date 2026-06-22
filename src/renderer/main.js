@@ -85,7 +85,7 @@ export async function openFile(rel) {
   await save() // flush any pending edits to the file we're leaving
   const text = await window.api.fs.read(currentFolder, rel)
   editor.setDoc(text)
-  dirty = false // buffer now matches disk; setDoc fires onChange→scheduleSave so reset after
+  clearTimeout(saveTimer); dirty = false // buffer matches disk; cancel the save setDoc just armed
   currentFile = rel
   await window.api.state.set({ lastFile: rel })
   await pushRecent(rel)
@@ -116,12 +116,12 @@ renderEmptyIfNeeded()
 window.api.onFsEvent(async (ev) => {
   await refreshIndex()
   if (ev.rel === currentFile) {
-    if (ev.type === 'unlink') { editor.setDoc(''); currentFile = null; renderEmptyIfNeeded() }
+    if (ev.type === 'unlink') { editor.setDoc(''); currentFile = null; clearTimeout(saveTimer); dirty = false; renderEmptyIfNeeded() }
     else if (ev.type === 'change' && !dirty) {
       const text = await window.api.fs.read(currentFolder, ev.rel)
       if (text !== editor.getDoc()) {
         editor.setDoc(text)
-        dirty = false // reset: programmatic reload matches disk, don't treat as user edit
+        clearTimeout(saveTimer); dirty = false // reload matches disk; cancel the save setDoc just armed
       }
     }
   }
