@@ -64,7 +64,10 @@ function buildDeco(view) {
           for (; l <= last; l++) ranges.push(lineDeco('cm-md-quote').range(doc.line(l).from))
         }
         if (MARKS.has(name) && !onCursorLine(node.from) && node.to > node.from) {
-          ranges.push(hidden.range(node.from, node.to))
+          let to = node.to
+          // For "# " also swallow the trailing space(s) so heading text doesn't start indented.
+          if (name === 'HeaderMark') while (to < doc.length && doc.sliceString(to, to + 1) === ' ') to++
+          ranges.push(hidden.range(node.from, to))
         }
       }
     })

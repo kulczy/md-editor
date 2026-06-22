@@ -24,7 +24,7 @@ export async function pushRecent(rel) {
 
 const pin = document.createElement('div')
 pin.className = 'pin-indicator'
-pin.textContent = '📌'
+pin.innerHTML = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4v6l-2 4v2h10v-2l-2 -4v-6"/><path d="M12 16v5"/><path d="M8 4h8"/></svg>'
 document.body.appendChild(pin)
 async function syncPin() { pin.style.display = (await window.api.getFloat()) ? 'block' : 'none' }
 syncPin()

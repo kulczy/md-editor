@@ -2,7 +2,7 @@ import { EditorView, keymap } from '@codemirror/view'
 import { EditorState } from '@codemirror/state'
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands'
 import { markdown, markdownLanguage, markdownKeymap } from '@codemirror/lang-markdown'
-import { syntaxHighlighting, defaultHighlightStyle } from '@codemirror/language'
+import { syntaxHighlighting, defaultHighlightStyle, indentUnit } from '@codemirror/language'
 import livePreview from './livePreview.js'
 
 export function createEditor({ parent, onChange }) {
@@ -19,6 +19,8 @@ export function createEditor({ parent, onChange }) {
           ...historyKeymap
         ]),
         markdown({ base: markdownLanguage }), // GFM: task lists, tables, strikethrough, autolinks
+        indentUnit.of('    '), // 4-space indent step (2x the default) for Tab / list nesting
+        EditorState.tabSize.of(4),
         livePreview,
         syntaxHighlighting(defaultHighlightStyle),
         EditorView.lineWrapping,
