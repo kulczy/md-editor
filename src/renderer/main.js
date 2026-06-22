@@ -1,4 +1,4 @@
-import { createEditor } from './editor.js'
+import { createEditor, THEME_NAMES } from './editor.js'
 import { initPalette, openPalette, isPaletteOpen } from './palette.js'
 import { makeCommands } from './commands.js'
 import { openSettings, isSettingsOpen } from './settings.js'
@@ -40,6 +40,8 @@ window.addEventListener('keydown', async (e) => {
 // Appearance — apply live to CSS, persist via store. isDark() reflects nativeTheme.themeSource
 // (set in main from the theme setting), so it's correct for system/light/dark.
 let translucency = 0.85
+let lightTheme = 'Default'
+let darkTheme = 'Default'
 const isDark = () => matchMedia('(prefers-color-scheme: dark)').matches
 function applyTranslucency(t) { // t: 0..1 (1 = fully glassy). Tint the body over the native vibrancy.
   translucency = t
@@ -50,13 +52,20 @@ const FONTS = { sans: '-apple-system, system-ui, sans-serif', mono: 'ui-monospac
 function applyFont(fam) { document.documentElement.style.setProperty('--editor-font-family', FONTS[fam] || FONTS.sans) }
 function applyFontSize(px) { document.documentElement.style.setProperty('--editor-font-size', px + 'px') }
 function applyLineHeight(lh) { document.documentElement.style.setProperty('--editor-line-height', lh) }
-function syncTheme() { editor.setDark(isDark()); applyTranslucency(translucency) } // editor colors + tint
+function syncTheme() { // pick the active palette for the resolved mode, then re-tint
+  const dark = isDark()
+  editor.setHighlight(dark ? 'dark' : 'light', dark ? darkTheme : lightTheme)
+  applyTranslucency(translucency)
+}
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncTheme) // fires on themeSource/OS change
 async function openSettingsPanel() {
   const s = await window.api.state.get()
   openSettings({
     folder: currentFolder,
     theme: s.theme,
+    themeNames: THEME_NAMES,
+    lightTheme: s.lightTheme,
+    darkTheme: s.darkTheme,
     translucency: s.translucency,
     editorPad: s.editorPad,
     hotkey: s.hotkey,
@@ -70,7 +79,9 @@ async function openSettingsPanel() {
     onFontSize: (px) => { applyFontSize(px); window.api.state.set({ fontSize: px }) },
     onLineHeight: (lh) => { applyLineHeight(lh); window.api.state.set({ lineHeight: lh }) },
     onFontFamily: (fam) => { applyFont(fam); window.api.state.set({ fontFamily: fam }) },
-    onTheme: (mode) => window.api.setTheme(mode) // main flips nativeTheme → matchMedia 'change' → syncTheme()
+    onTheme: (mode) => window.api.setTheme(mode), // main flips nativeTheme → matchMedia 'change' → syncTheme()
+    onLightTheme: (name) => { lightTheme = name; syncTheme(); window.api.state.set({ lightTheme: name }) },
+    onDarkTheme: (name) => { darkTheme = name; syncTheme(); window.api.state.set({ darkTheme: name }) }
   })
 }
 window.addEventListener('keydown', (e) => {
@@ -188,6 +199,8 @@ window.api.onFsEvent(async (ev) => {
 ;(async () => {
   const s = await window.api.state.get()
   translucency = s.translucency
+  lightTheme = s.lightTheme
+  darkTheme = s.darkTheme
   applyPad(s.editorPad)
   applyFont(s.fontFamily)
   applyFontSize(s.fontSize)

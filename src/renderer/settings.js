@@ -47,6 +47,14 @@ export function openSettings(opts) {
         </div>
       </div>
       <div class="setting">
+        <label>Light theme</label>
+        <select id="set-light-theme"></select>
+      </div>
+      <div class="setting">
+        <label>Dark theme</label>
+        <select id="set-dark-theme"></select>
+      </div>
+      <div class="setting">
         <label>Translucency <span class="val" id="set-bg-val"></span></label>
         <input id="set-bg" type="range" min="0" max="1" step="0.01">
       </div>
@@ -82,6 +90,13 @@ export function openSettings(opts) {
   const markTheme = (m) => seg2.querySelectorAll('button').forEach((b) => b.classList.toggle('active', b.dataset.theme === m))
   markTheme(opts.theme)
   seg2.querySelectorAll('button').forEach((b) => { b.onclick = () => { markTheme(b.dataset.theme); opts.onTheme(b.dataset.theme) } })
+
+  const fillSelect = (sel, names, current) => { sel.innerHTML = names.map((n) => `<option${n === current ? ' selected' : ''}>${n}</option>`).join('') }
+  const lt = $('#set-light-theme'), dt = $('#set-dark-theme')
+  fillSelect(lt, opts.themeNames.light, opts.lightTheme)
+  fillSelect(dt, opts.themeNames.dark, opts.darkTheme)
+  lt.onchange = () => opts.onLightTheme(lt.value)
+  dt.onchange = () => opts.onDarkTheme(dt.value)
 
   const bg = $('#set-bg'), pad = $('#set-pad')
   bg.value = opts.translucency

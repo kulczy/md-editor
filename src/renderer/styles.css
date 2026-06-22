@@ -62,6 +62,7 @@ body { font: 16px/1.6 -apple-system, system-ui, sans-serif; }
 .settings .folder-row { display: flex; align-items: center; gap: 10px; }
 .settings .folder-path { flex: 1; font-size: 12px; opacity: .7; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .settings button { font: inherit; padding: 6px 12px; border-radius: 8px; cursor: pointer; }
+.settings select { font: inherit; padding: 5px 8px; border-radius: 8px; align-self: flex-start; }
 .settings .hotkey-btn { align-self: flex-start; min-width: 120px; text-align: center; }
 .settings .hotkey-btn.recording { outline: 2px solid rgba(120,140,255,.7); }
 .settings .seg { display: inline-flex; align-self: flex-start; border: 1px solid rgba(127,127,127,.4); border-radius: 8px; overflow: hidden; }

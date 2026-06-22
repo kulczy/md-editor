@@ -13,6 +13,8 @@ export default new Store({
     lineHeight: 1.6, // editor line height (unitless)
     fontFamily: 'sans', // 'sans' | 'mono'
     theme: 'system', // 'system' | 'light' | 'dark' (drives nativeTheme.themeSource)
+    lightTheme: 'Default', // highlight palette used in light mode
+    darkTheme: 'Default', // highlight palette used in dark mode
     windowBounds: null // {x,y,width,height} — remembered across launches
   }
 })
