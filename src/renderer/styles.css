@@ -8,7 +8,7 @@ body { font: 16px/1.6 -apple-system, system-ui, sans-serif; }
 /* .cm-editor .cm-content outspecifies CM6's own injected .cm-content padding rule.
    --editor-pad is driven by the settings slider (default 64px). */
 .cm-editor .cm-content {
-  padding: 28px var(--editor-pad, 64px) calc(var(--editor-pad, 64px) + 24px);
+  padding: 16px var(--editor-pad, 64px) calc(var(--editor-pad, 64px) + 24px);
   font-size: var(--editor-font-size, 16px);
   line-height: var(--editor-line-height, 1.6);
   font-family: var(--editor-font-family, -apple-system, system-ui, sans-serif);
@@ -46,7 +46,8 @@ body { font: 16px/1.6 -apple-system, system-ui, sans-serif; }
 .palette-list li { padding: 8px 12px; border-radius: 6px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .palette-list li.active { background: rgba(127,127,127,.2); }
 
-.pin-indicator { position: fixed; top: 10px; right: 12px; opacity: .55; z-index: 50; line-height: 0; } /* svg uses currentColor → monochrome, theme-adaptive */
+.pin-indicator { position: fixed; top: 10px; right: 12px; opacity: .55; z-index: 50; line-height: 0; cursor: pointer; -webkit-app-region: no-drag; } /* svg uses currentColor → monochrome, theme-adaptive; click to unpin */
+.pin-indicator:hover { opacity: .9; }
 
 #empty { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
 #empty button { font: inherit; padding: 12px 20px; border-radius: 8px; cursor: pointer; }
