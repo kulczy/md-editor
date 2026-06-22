@@ -11,6 +11,7 @@ export default new Store({
     editorPad: 64, // editor left/right padding in px
     fontSize: 16, // editor font size in px
     lineHeight: 1.6, // editor line height (unitless)
-    fontFamily: 'sans' // 'sans' | 'mono'
+    fontFamily: 'sans', // 'sans' | 'mono'
+    windowBounds: null // {x,y,width,height} — remembered across launches
   }
 })

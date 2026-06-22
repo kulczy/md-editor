@@ -23,13 +23,21 @@ export function runSteps(steps, ctx, ui) {
   })
 }
 
+// Trim, reject empty or path-escaping names, ensure a .md extension. Returns null if invalid.
+function cleanName(name) {
+  const n = (name || '').trim()
+  if (!n || n.includes('..')) return null
+  return n.endsWith('.md') ? n : n + '.md'
+}
+
 export function makeCommands(ctx) {
   return [
     {
       id: 'new', label: 'New file',
       steps: [text({ prompt: 'New file name (e.g. notes/idea.md)' })],
       async run([name]) {
-        const rel = name.endsWith('.md') ? name : name + '.md'
+        const rel = cleanName(name)
+        if (!rel) return
         await ctx.fs.write(ctx.currentFolder(), rel, '')
         await ctx.refreshIndex()
         await ctx.openFile(rel)
@@ -39,7 +47,8 @@ export function makeCommands(ctx) {
       id: 'rename', label: 'Rename file',
       steps: [text({ prompt: 'New name', prefill: '' })], // prefill set dynamically in palette.js
       async run([name]) {
-        const rel = name.endsWith('.md') ? name : name + '.md'
+        const rel = cleanName(name)
+        if (!rel) return
         await ctx.fs.rename(ctx.currentFolder(), ctx.currentFile(), rel)
         await ctx.refreshIndex()
         await ctx.openFile(rel)

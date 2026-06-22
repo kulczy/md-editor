@@ -48,6 +48,15 @@ function setupResident() {
   // Hide instead of close; keep process alive.
   win.on('close', (e) => { if (!isQuitting) { e.preventDefault(); win.hide() } })
 
+  // Persist window size/position (debounced — resize/move fire rapidly).
+  let boundsTimer = null
+  const saveBounds = () => {
+    clearTimeout(boundsTimer)
+    boundsTimer = setTimeout(() => { if (win && !win.isDestroyed()) store.set({ windowBounds: win.getBounds() }) }, 400)
+  }
+  win.on('resize', saveBounds)
+  win.on('move', saveBounds)
+
   const icon = nativeImage.createFromPath(join(import.meta.dirname, '../../build/iconTemplate.png'))
   icon.setTemplateImage(true)
   tray = new Tray(icon)
@@ -65,9 +74,12 @@ function setupResident() {
 }
 
 function createWindow() {
+  const b = store.get('windowBounds') // restore size/position (x/y undefined → Electron centers)
   win = new BrowserWindow({
-    width: 650,
-    height: 640,
+    width: b?.width ?? 650,
+    height: b?.height ?? 640,
+    x: b?.x,
+    y: b?.y,
     vibrancy: 'under-window', // native macOS translucency (frosted glass behind the window)
     backgroundColor: '#00000000', // transparent so the vibrancy material shows through
     titleBarStyle: 'customButtonsOnHover', // frameless; macOS reveals the traffic lights on hover (native)

@@ -1,8 +1,17 @@
 import { promises as fs } from 'node:fs'
-import { join, relative, dirname, sep } from 'node:path'
+import { join, resolve, relative, dirname, sep } from 'node:path'
 import chokidar from 'chokidar'
 
 const toPosix = (p) => p.split(sep).join('/')
+
+// Resolve rel under root and refuse anything that escapes the folder (e.g. "../x.md").
+function within(root, rel) {
+  const full = resolve(root, rel)
+  if (full !== resolve(root) && !full.startsWith(resolve(root) + sep)) {
+    throw new Error(`path escapes folder: ${rel}`)
+  }
+  return full
+}
 
 export async function listMarkdown(root) {
   const out = []
@@ -19,21 +28,21 @@ export async function listMarkdown(root) {
   return out
 }
 
-export const readFile = (root, rel) => fs.readFile(join(root, rel), 'utf8')
+export const readFile = async (root, rel) => fs.readFile(within(root, rel), 'utf8')
 
 export async function writeFile(root, rel, content) {
-  const full = join(root, rel)
+  const full = within(root, rel)
   await fs.mkdir(dirname(full), { recursive: true })
   await fs.writeFile(full, content, 'utf8')
 }
 
 export async function renameFile(root, rel, newRel) {
-  const dst = join(root, newRel)
+  const dst = within(root, newRel)
   await fs.mkdir(dirname(dst), { recursive: true })
-  await fs.rename(join(root, rel), dst)
+  await fs.rename(within(root, rel), dst)
 }
 
-export const deleteFile = (root, rel) => fs.rm(join(root, rel))
+export const deleteFile = async (root, rel) => fs.rm(within(root, rel))
 
 export function watchFolder(root, send) {
   const w = chokidar.watch(root, {

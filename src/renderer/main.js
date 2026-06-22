@@ -1,5 +1,5 @@
 import { createEditor } from './editor.js'
-import { initPalette, openPalette, isPaletteOpen, closePalette } from './palette.js'
+import { initPalette, openPalette, isPaletteOpen } from './palette.js'
 import { makeCommands } from './commands.js'
 import { openSettings, isSettingsOpen } from './settings.js'
 

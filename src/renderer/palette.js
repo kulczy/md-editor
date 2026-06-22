@@ -135,5 +135,5 @@ export function openPalette({ mode = 'files' } = {}) {
   input.focus()
 }
 
-// Exposed so Task 8's command steps can drive the palette's input/list.
-export function _internal() { return { setStepRunner: (r) => { stepRunner = r }, getEl: () => el } }
+// Exposed so command steps can install their key handler on the palette input.
+export function _internal() { return { setStepRunner: (r) => { stepRunner = r } } }
