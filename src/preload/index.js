@@ -7,5 +7,10 @@ contextBridge.exposeInMainWorld('api', {
     write: (root, rel, content) => ipcRenderer.invoke('fs:write', root, rel, content),
     rename: (root, rel, newRel) => ipcRenderer.invoke('fs:rename', root, rel, newRel),
     delete: (root, rel) => ipcRenderer.invoke('fs:delete', root, rel)
-  }
+  },
+  state: {
+    get: () => ipcRenderer.invoke('state:get'),
+    set: (patch) => ipcRenderer.invoke('state:set', patch)
+  },
+  pickFolder: () => ipcRenderer.invoke('pickFolder')
 })
