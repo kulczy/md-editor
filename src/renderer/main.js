@@ -1,5 +1,6 @@
 import { createEditor } from './editor.js'
 import { initPalette, openPalette, isPaletteOpen, closePalette } from './palette.js'
+import { makeCommands } from './commands.js'
 
 const app = document.getElementById('app')
 app.textContent = ''
@@ -19,10 +20,23 @@ export async function pushRecent(rel) {
   await window.api.state.set({ recentFiles })
 }
 
+const ctx = {
+  currentFolder: () => currentFolder,
+  currentFile: () => currentFile,
+  fs: window.api.fs,
+  openFile,
+  refreshIndex,
+  pickFolder: window.api.pickFolder,
+  setFolder,
+  toggleFloat: () => window.api.toggleFloat() // defined in Task 10
+}
+
 initPalette({
   getFiles: () => fileIndex,
   getRecent: () => recentFiles,
-  onOpenFile: (rel) => openFile(rel)
+  onOpenFile: (rel) => openFile(rel),
+  commands: makeCommands(ctx),
+  ctx
 })
 
 window.addEventListener('keydown', (e) => {

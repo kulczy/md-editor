@@ -1,4 +1,5 @@
 import { fuzzyFilter } from './fuzzy.js'
+import { runSteps, text } from './commands.js'
 
 let cfg = null
 let el = null
@@ -27,6 +28,68 @@ export function openPalette({ mode = 'files' } = {}) {
   let active = 0
   let rows = []
 
+  // Build the UI adapter the step-machine uses to drive the palette input.
+  function makeUiAdapter() {
+    let _submitCb = null
+    let _cancelCb = null
+    const adapter = {
+      setPrompt(str) { input.placeholder = str },
+      setValue(v) { input.value = v },
+      getValue() { return input.value },
+      onSubmit(cb) { _submitCb = cb },
+      onCancel(cb) { _cancelCb = cb }
+    }
+    // stepRunner.onKey is called by the keydown handler; return true to consume the event.
+    const runner = {
+      onKey(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault()
+          if (_submitCb) _submitCb()
+          return true
+        }
+        if (e.key === 'Escape') {
+          if (_cancelCb) _cancelCb()
+          return true
+        }
+        return false
+      }
+    }
+    return { adapter, runner }
+  }
+
+  // Launch the step-flow for a command (called when a command row is selected).
+  function runCommand(command) {
+    if (!command.steps || command.steps.length === 0) {
+      // No steps — run immediately and close.
+      Promise.resolve(command.run([], cfg.ctx)).then(() => closePalette()).catch(() => closePalette())
+      return
+    }
+
+    // For rename: inject the current-file prefill into the first text step at render time.
+    let steps = command.steps
+    if (command.id === 'rename' && cfg.ctx) {
+      steps = [text({ prompt: 'New name', prefill: cfg.ctx.currentFile() || '' }), ...steps.slice(1)]
+    }
+
+    // Clear the list so the palette shows only the step prompt.
+    list.innerHTML = ''
+    input.value = ''
+    input.placeholder = ''
+
+    const { adapter, runner } = makeUiAdapter()
+    _internal().setStepRunner(runner)
+
+    runSteps(steps, cfg.ctx || {}, adapter).then((values) => {
+      // Clear step runner regardless of outcome.
+      stepRunner = null
+      if (values !== null) {
+        Promise.resolve(command.run(values, cfg.ctx)).finally(() => closePalette())
+      } else {
+        closePalette()
+      }
+    })
+  }
+
   function render() {
     const q = input.value
     if (q.startsWith('>')) {
@@ -49,6 +112,16 @@ export function openPalette({ mode = 'files' } = {}) {
       list.appendChild(li)
     })
   }
+
+  // cfg.renderCommands: returns rows for command mode, each row's run() fires the step flow.
+  cfg.renderCommands = (query) => {
+    if (!cfg.commands) return []
+    return fuzzyFilter(query, cfg.commands, (c) => c.label).map((command) => ({
+      label: command.label,
+      run: () => runCommand(command)
+    }))
+  }
+
   input.addEventListener('input', render)
   input.addEventListener('keydown', (e) => {
     if (stepRunner && stepRunner.onKey(e)) return // command-step flow owns keys
