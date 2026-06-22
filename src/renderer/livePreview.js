@@ -1,6 +1,5 @@
 import { ViewPlugin, Decoration, WidgetType } from '@codemirror/view'
 import { syntaxTree } from '@codemirror/language'
-import { RangeSetBuilder } from '@codemirror/state'
 
 // Clickable checkbox replacing a GFM task marker "[ ]" / "[x]". Clicking toggles the
 // source char between the brackets (pos+1), then decorations rebuild with the new state.
@@ -32,53 +31,45 @@ const MARKS = new Set(['EmphasisMark', 'CodeMark', 'StrikethroughMark', 'HeaderM
 const hidden = Decoration.replace({})
 
 function buildDeco(view) {
-  const builder = new RangeSetBuilder()
+  const doc = view.state.doc
   // Lines touched by any selection range stay "raw" (markers visible).
   const cursorLines = new Set()
   for (const r of view.state.selection.ranges) {
-    let l = view.state.doc.lineAt(r.from).number
-    const last = view.state.doc.lineAt(r.to).number
+    let l = doc.lineAt(r.from).number
+    const last = doc.lineAt(r.to).number
     for (; l <= last; l++) cursorLines.add(l)
   }
-  const onCursorLine = (pos) => cursorLines.has(view.state.doc.lineAt(pos).number)
+  const onCursorLine = (pos) => cursorLines.has(doc.lineAt(pos).number)
+  const lineDeco = (cls) => Decoration.line({ class: cls })
 
-  // Collect (sorted) before emitting: line decos and mark decos can interleave.
-  const items = []
+  // Collect unsorted; Decoration.set(_, true) sorts by (from, startSide) for us.
+  const ranges = []
   for (const { from, to } of view.visibleRanges) {
     syntaxTree(view.state).iterate({
       from, to,
       enter(node) {
         const name = node.name
         if (name.startsWith('ATXHeading')) {
-          const level = name.slice(-1)
-          items.push({ from: node.from, to: node.from, line: { class: `cm-md-h${level}` } })
+          ranges.push(lineDeco(`cm-md-h${name.slice(-1)}`).range(doc.lineAt(node.from).from))
         } else if (STYLE[name]) {
-          items.push({ from: node.from, to: node.to, mark: STYLE[name] })
+          ranges.push(Decoration.mark({ class: STYLE[name] }).range(node.from, node.to))
         } else if (name === 'TaskMarker') {
-          const checked = /[xX]/.test(view.state.doc.sliceString(node.from, node.to))
-          items.push({ from: node.from, to: node.to, widget: new CheckboxWidget(checked, node.from) })
+          const checked = /[xX]/.test(doc.sliceString(node.from, node.to))
+          ranges.push(Decoration.replace({ widget: new CheckboxWidget(checked, node.from) }).range(node.from, node.to))
         } else if (name === 'HorizontalRule') {
-          items.push({ from: node.from, to: node.from, line: { class: 'cm-md-hr' } })
+          ranges.push(lineDeco('cm-md-hr').range(doc.lineAt(node.from).from))
         } else if (name === 'Blockquote') {
-          let l = view.state.doc.lineAt(node.from).number
-          const last = view.state.doc.lineAt(node.to).number
-          for (; l <= last; l++) items.push({ from: view.state.doc.line(l).from, to: view.state.doc.line(l).from, line: { class: 'cm-md-quote' } })
+          let l = doc.lineAt(node.from).number
+          const last = doc.lineAt(node.to).number
+          for (; l <= last; l++) ranges.push(lineDeco('cm-md-quote').range(doc.line(l).from))
         }
         if (MARKS.has(name) && !onCursorLine(node.from) && node.to > node.from) {
-          items.push({ from: node.from, to: node.to, hide: true })
+          ranges.push(hidden.range(node.from, node.to))
         }
       }
     })
   }
-  // Emit line decos first per position, then marks, in document order.
-  items.sort((a, b) => a.from - b.from || (a.line ? -1 : 1))
-  for (const it of items) {
-    if (it.line) builder.add(it.from, it.from, Decoration.line({ class: it.line.class }))
-    else if (it.widget) builder.add(it.from, it.to, Decoration.replace({ widget: it.widget }))
-    else if (it.hide) builder.add(it.from, it.to, hidden)
-    else builder.add(it.from, it.to, Decoration.mark({ class: it.mark }))
-  }
-  return builder.finish()
+  return Decoration.set(ranges, true)
 }
 
 const plugin = ViewPlugin.fromClass(class {
