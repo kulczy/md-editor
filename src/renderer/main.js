@@ -80,7 +80,10 @@ initPalette({
 })
 
 window.addEventListener('keydown', (e) => {
-  if ((e.metaKey || e.ctrlKey) && e.key === 'p') { e.preventDefault(); openPalette({ mode: 'files' }) }
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'p') {
+    e.preventDefault()
+    openPalette({ mode: e.shiftKey ? 'commands' : 'files' }) // Cmd+Shift+P → command mode (>)
+  }
 })
 
 window.addEventListener('keydown', (e) => {

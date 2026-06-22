@@ -65,6 +65,11 @@ export function makeCommands(ctx) {
       id: 'float', label: 'Toggle float (always on top)',
       steps: [],
       async run() { await ctx.toggleFloat() }
+    },
+    {
+      id: 'settings', label: 'Settings',
+      steps: [],
+      async run() { ctx.openSettings() }
     }
   ]
 }
