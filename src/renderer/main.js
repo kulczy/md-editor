@@ -132,7 +132,9 @@ export async function save(text = editor.getDoc()) {
 
 export async function openFile(rel) {
   await save() // flush any pending edits to the file we're leaving
-  const text = await window.api.fs.read(currentFolder, rel)
+  let text
+  try { text = await window.api.fs.read(currentFolder, rel) }
+  catch { await refreshIndex(); return } // file vanished between indexing and open — ignore
   editor.setDoc(text)
   clearTimeout(saveTimer); dirty = false // buffer matches disk; cancel the save setDoc just armed
   currentFile = rel

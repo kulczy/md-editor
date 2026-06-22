@@ -1,4 +1,4 @@
-// Simple modal settings panel: folder, translucency, editor padding.
+// Modal settings panel: folder, translucency, editor padding, font size/height, font, global shortcut.
 let el = null
 export function isSettingsOpen() { return !!el }
 export function closeSettings() { if (el) { el.remove(); el = null } }
