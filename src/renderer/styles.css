@@ -6,6 +6,11 @@ body { font: 16px/1.6 -apple-system, system-ui, sans-serif; }
 .cm-editor { height: 100%; }
 .cm-content { max-width: 720px; margin: 0 auto; padding: 48px 24px; }
 .cm-editor.cm-focused { outline: none; }
+/* CM6 has no theme set → it assumes light mode and uses a black caret/selection,
+   invisible in OS dark mode. Make them follow the current text color. */
+.cm-editor .cm-content { caret-color: currentColor; }
+.cm-editor .cm-selectionBackground, .cm-editor.cm-focused .cm-selectionBackground,
+.cm-editor ::selection { background: rgba(128,128,128,0.35); }
 
 .cm-md-h1 { font-size: 1.8em; font-weight: 700; }
 .cm-md-h2 { font-size: 1.5em; font-weight: 700; }
