@@ -194,6 +194,7 @@ window.api.onFsEvent(async (ev) => {
     }
   }
   renderEmptyIfNeeded()
+  window.api.ready() // appearance applied + file loaded → safe to show the window
 })()
 
 window.addEventListener('beforeunload', () => { save() })

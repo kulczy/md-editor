@@ -76,6 +76,7 @@ function setupResident() {
 function createWindow() {
   const b = store.get('windowBounds') // restore size/position (x/y undefined → Electron centers)
   win = new BrowserWindow({
+    show: false, // shown once the renderer signals it's styled + loaded (avoids a flash)
     width: b?.width ?? 650,
     height: b?.height ?? 640,
     x: b?.x,
@@ -97,7 +98,10 @@ function createWindow() {
     win.loadFile(join(import.meta.dirname, '../renderer/index.html'))
   }
   setupResident()
+  setTimeout(() => { if (win && !win.isDestroyed() && !win.isVisible()) win.show() }, 2000) // fallback if 'window:ready' never arrives
 }
+
+ipcMain.on('window:ready', () => { if (win && !win.isVisible()) win.show() })
 
 ipcMain.handle('window:toggleFloat', () => {
   const next = !win.isAlwaysOnTop()
