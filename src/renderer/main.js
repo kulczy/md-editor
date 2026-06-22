@@ -69,6 +69,11 @@ const titlebar = document.createElement('div')
 titlebar.className = 'titlebar'
 app.appendChild(titlebar)
 function setTitle(rel) { titlebar.textContent = rel ? rel.split('/').pop().replace(/\.md$/, '') : '' }
+// Reveal the macOS traffic lights while hovering anywhere on the bar (small hide delay so
+// moving the cursor onto the native buttons doesn't make them vanish before a click).
+let btnHideTimer
+titlebar.addEventListener('mouseenter', () => { clearTimeout(btnHideTimer); window.api.setButtons(true) })
+titlebar.addEventListener('mouseleave', () => { btnHideTimer = setTimeout(() => window.api.setButtons(false), 250) })
 
 const editor = createEditor({ parent: app, onChange: scheduleSave })
 export { editor }

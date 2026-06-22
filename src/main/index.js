@@ -70,7 +70,8 @@ function createWindow() {
     height: 640,
     vibrancy: 'under-window', // native macOS translucency (frosted glass behind the window)
     backgroundColor: '#00000000', // transparent so the vibrancy material shows through
-    titleBarStyle: 'customButtonsOnHover', // frameless; traffic lights appear on hover top-left
+    titleBarStyle: 'hidden', // frameless; we toggle traffic lights ourselves on bar hover
+    trafficLightPosition: { x: 18, y: 18 }, // center the lights in the taller title strip
     webPreferences: {
       preload: join(import.meta.dirname, '../preload/index.cjs'), // CommonJS preload (sandbox requires CJS, not ESM)
       contextIsolation: true, // pin secure defaults explicitly (trust boundary)
@@ -78,6 +79,7 @@ function createWindow() {
     }
   })
   win.setAlwaysOnTop(store.get('floatOn'))
+  if (process.platform === 'darwin') win.setWindowButtonVisibility(false) // hidden until bar hover
   if (process.env.ELECTRON_RENDERER_URL) {
     win.loadURL(process.env.ELECTRON_RENDERER_URL)
   } else {
@@ -95,6 +97,7 @@ ipcMain.handle('window:toggleFloat', () => {
 ipcMain.handle('window:getFloat', () => win.isAlwaysOnTop())
 
 ipcMain.handle('window:hide', () => win?.hide())
+ipcMain.handle('window:setButtons', (_e, v) => { if (process.platform === 'darwin') win?.setWindowButtonVisibility(v) })
 
 app.whenReady().then(createWindow)
 app.on('window-all-closed', () => {}) // ponytail: resident app, don't quit on close

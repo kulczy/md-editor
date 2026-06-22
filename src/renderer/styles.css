@@ -3,9 +3,9 @@
 html, body, #app { height: 100%; margin: 0; }
 body { font: 16px/1.6 -apple-system, system-ui, sans-serif; }
 #app { display: flex; flex-direction: column; }
-.titlebar { flex: 0 0 38px; display: flex; align-items: center; justify-content: center; -webkit-app-region: drag; font: 13px/1 -apple-system, system-ui, sans-serif; opacity: 0.55; user-select: none; }
+.titlebar { flex: 0 0 52px; display: flex; align-items: center; justify-content: center; -webkit-app-region: drag; font: 13px/1 -apple-system, system-ui, sans-serif; opacity: 0.55; user-select: none; }
 .cm-editor { flex: 1; min-height: 0; } /* fill space under the title strip; min-height:0 lets it scroll */
-.cm-content { max-width: 720px; margin: 0 auto; padding: 24px; }
+.cm-content { max-width: 720px; margin: 0 auto; padding: 32px 56px 56px; }
 .cm-editor.cm-focused { outline: none; }
 /* CM6 has no theme set → it assumes light mode and uses a black caret/selection,
    invisible in OS dark mode. Make them follow the current text color. */
