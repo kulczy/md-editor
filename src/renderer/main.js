@@ -41,6 +41,10 @@ function applyTranslucency(t) { // t: 0..1 (1 = fully glassy). Tint the body ove
   document.body.style.backgroundColor = `rgba(${dark ? '28,28,30' : '245,245,247'}, ${1 - t})`
 }
 function applyPad(px) { document.documentElement.style.setProperty('--editor-pad', px + 'px') }
+const FONTS = { sans: '-apple-system, system-ui, sans-serif', mono: 'ui-monospace, SFMono-Regular, Menlo, monospace' }
+function applyFont(fam) { document.documentElement.style.setProperty('--editor-font-family', FONTS[fam] || FONTS.sans) }
+function applyFontSize(px) { document.documentElement.style.setProperty('--editor-font-size', px + 'px') }
+function applyLineHeight(lh) { document.documentElement.style.setProperty('--editor-line-height', lh) }
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', async () => {
   applyTranslucency((await window.api.state.get()).translucency)
 })
@@ -51,10 +55,16 @@ async function openSettingsPanel() {
     translucency: s.translucency,
     editorPad: s.editorPad,
     hotkey: s.hotkey,
+    fontSize: s.fontSize,
+    lineHeight: s.lineHeight,
+    fontFamily: s.fontFamily,
     onPickFolder: async () => { const f = await window.api.pickFolder(); if (f) { await setFolder(f); await refreshIndex(); renderEmptyIfNeeded() } return f },
     onTranslucency: (t) => { applyTranslucency(t); window.api.state.set({ translucency: t }) },
     onPad: (px) => { applyPad(px); window.api.state.set({ editorPad: px }) },
-    onSetHotkey: (accel) => window.api.setHotkey(accel)
+    onSetHotkey: (accel) => window.api.setHotkey(accel),
+    onFontSize: (px) => { applyFontSize(px); window.api.state.set({ fontSize: px }) },
+    onLineHeight: (lh) => { applyLineHeight(lh); window.api.state.set({ lineHeight: lh }) },
+    onFontFamily: (fam) => { applyFont(fam); window.api.state.set({ fontFamily: fam }) }
   })
 }
 window.addEventListener('keydown', (e) => {
@@ -170,6 +180,9 @@ window.api.onFsEvent(async (ev) => {
   const s = await window.api.state.get()
   applyTranslucency(s.translucency)
   applyPad(s.editorPad)
+  applyFont(s.fontFamily)
+  applyFontSize(s.fontSize)
+  applyLineHeight(s.lineHeight)
   if (s.lastFolder) {
     currentFolder = s.lastFolder
     recentFiles = s.recentFiles || []

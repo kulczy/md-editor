@@ -8,6 +8,9 @@ export default new Store({
     floatOn: false,
     hotkey: 'CommandOrControl+Shift+Space',
     translucency: 0.85, // 0 = solid window, 1 = fully glassy (vibrancy shows through)
-    editorPad: 64 // editor left/right padding in px
+    editorPad: 64, // editor left/right padding in px
+    fontSize: 16, // editor font size in px
+    lineHeight: 1.6, // editor line height (unitless)
+    fontFamily: 'sans' // 'sans' | 'mono'
   }
 })

@@ -7,7 +7,12 @@ body { font: 16px/1.6 -apple-system, system-ui, sans-serif; }
 .cm-editor { flex: 1; min-height: 0; } /* fill space under the title strip; min-height:0 lets it scroll */
 /* .cm-editor .cm-content outspecifies CM6's own injected .cm-content padding rule.
    --editor-pad is driven by the settings slider (default 64px). */
-.cm-editor .cm-content { padding: 28px var(--editor-pad, 64px) calc(var(--editor-pad, 64px) + 24px); }
+.cm-editor .cm-content {
+  padding: 28px var(--editor-pad, 64px) calc(var(--editor-pad, 64px) + 24px);
+  font-size: var(--editor-font-size, 16px);
+  line-height: var(--editor-line-height, 1.6);
+  font-family: var(--editor-font-family, -apple-system, system-ui, sans-serif);
+}
 .cm-editor.cm-focused { outline: none; }
 /* CM6 has no theme set → it assumes light mode and uses a black caret/selection,
    invisible in OS dark mode. Make them follow the current text color. */
@@ -48,3 +53,6 @@ body { font: 16px/1.6 -apple-system, system-ui, sans-serif; }
 .settings button { font: inherit; padding: 6px 12px; border-radius: 8px; cursor: pointer; }
 .settings .hotkey-btn { align-self: flex-start; min-width: 120px; text-align: center; }
 .settings .hotkey-btn.recording { outline: 2px solid rgba(120,140,255,.7); }
+.settings .seg { display: inline-flex; align-self: flex-start; border: 1px solid rgba(127,127,127,.4); border-radius: 8px; overflow: hidden; }
+.settings .seg button { border: 0; border-radius: 0; padding: 6px 16px; background: transparent; }
+.settings .seg button.active { background: rgba(120,140,255,.25); }

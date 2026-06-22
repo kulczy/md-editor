@@ -47,6 +47,21 @@ export function openSettings(opts) {
         <input id="set-pad" type="range" min="16" max="160" step="2">
       </div>
       <div class="setting">
+        <label>Font size <span class="val" id="set-fs-val"></span></label>
+        <input id="set-fs" type="range" min="12" max="28" step="1">
+      </div>
+      <div class="setting">
+        <label>Line height <span class="val" id="set-lh-val"></span></label>
+        <input id="set-lh" type="range" min="1.2" max="2.4" step="0.05">
+      </div>
+      <div class="setting">
+        <label>Font</label>
+        <div class="seg" id="set-font">
+          <button data-font="sans">Sans</button>
+          <button data-font="mono">Mono</button>
+        </div>
+      </div>
+      <div class="setting">
         <label>Global shortcut</label>
         <button id="set-hotkey" class="hotkey-btn"></button>
       </div>
@@ -62,6 +77,21 @@ export function openSettings(opts) {
   showBg(); showPad()
   bg.addEventListener('input', () => { showBg(); opts.onTranslucency(parseFloat(bg.value)) })
   pad.addEventListener('input', () => { showPad(); opts.onPad(parseInt(pad.value, 10)) })
+
+  const fs = $('#set-fs'), lh = $('#set-lh')
+  fs.value = opts.fontSize
+  lh.value = opts.lineHeight
+  const showFs = () => { $('#set-fs-val').textContent = fs.value + 'px' }
+  const showLh = () => { $('#set-lh-val').textContent = parseFloat(lh.value).toFixed(2) }
+  showFs(); showLh()
+  fs.addEventListener('input', () => { showFs(); opts.onFontSize(parseInt(fs.value, 10)) })
+  lh.addEventListener('input', () => { showLh(); opts.onLineHeight(parseFloat(lh.value)) })
+
+  const seg = $('#set-font')
+  const markFont = (fam) => seg.querySelectorAll('button').forEach((b) => b.classList.toggle('active', b.dataset.font === fam))
+  markFont(opts.fontFamily)
+  seg.querySelectorAll('button').forEach((b) => { b.onclick = () => { markFont(b.dataset.font); opts.onFontFamily(b.dataset.font) } })
+
   $('#set-change').onclick = async () => { const f = await opts.onPickFolder(); if (f) $('.folder-path').textContent = f }
 
   // Global-shortcut recorder
