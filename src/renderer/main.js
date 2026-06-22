@@ -1,6 +1,7 @@
 import { createEditor } from './editor.js'
 import { initPalette, openPalette, isPaletteOpen, closePalette } from './palette.js'
 import { makeCommands } from './commands.js'
+import { openSettings, isSettingsOpen } from './settings.js'
 
 const app = document.getElementById('app')
 app.textContent = ''
@@ -34,6 +35,30 @@ window.addEventListener('keydown', async (e) => {
   }
 })
 
+// Appearance settings — apply live to CSS, persist via store.
+function applyTranslucency(t) { // t: 0..1 (1 = fully glassy). Tint the body over the native vibrancy.
+  const dark = matchMedia('(prefers-color-scheme: dark)').matches
+  document.body.style.backgroundColor = `rgba(${dark ? '28,28,30' : '245,245,247'}, ${1 - t})`
+}
+function applyPad(px) { document.documentElement.style.setProperty('--editor-pad', px + 'px') }
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', async () => {
+  applyTranslucency((await window.api.state.get()).translucency)
+})
+async function openSettingsPanel() {
+  const s = await window.api.state.get()
+  openSettings({
+    folder: currentFolder,
+    translucency: s.translucency,
+    editorPad: s.editorPad,
+    onPickFolder: async () => { const f = await window.api.pickFolder(); if (f) { await setFolder(f); await refreshIndex(); renderEmptyIfNeeded() } return f },
+    onTranslucency: (t) => { applyTranslucency(t); window.api.state.set({ translucency: t }) },
+    onPad: (px) => { applyPad(px); window.api.state.set({ editorPad: px }) }
+  })
+}
+window.addEventListener('keydown', (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key === ',') { e.preventDefault(); openSettingsPanel() }
+})
+
 const ctx = {
   currentFolder: () => currentFolder,
   currentFile: () => currentFile,
@@ -42,7 +67,8 @@ const ctx = {
   refreshIndex,
   pickFolder: window.api.pickFolder,
   setFolder,
-  toggleFloat: async () => { await window.api.toggleFloat(); syncPin() }
+  toggleFloat: async () => { await window.api.toggleFloat(); syncPin() },
+  openSettings: openSettingsPanel
 }
 
 initPalette({
@@ -60,7 +86,7 @@ window.addEventListener('keydown', (e) => {
 window.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     // Palette owns Esc while open (it stops propagation). If we get here, nothing is open → hide.
-    if (!isPaletteOpen()) { e.preventDefault(); save(); window.api.hideWindow() }
+    if (!isPaletteOpen() && !isSettingsOpen()) { e.preventDefault(); save(); window.api.hideWindow() }
   }
 }, true) // capture: but palette's handler calls stopPropagation when it consumes Esc
 
@@ -69,9 +95,7 @@ const titlebar = document.createElement('div')
 titlebar.className = 'titlebar'
 app.appendChild(titlebar)
 function setTitle(rel) { titlebar.textContent = rel ? rel.split('/').pop().replace(/\.md$/, '') : '' }
-// Reveal the macOS traffic lights when the cursor is near the top of the window.
-// The bar itself is a drag region (-webkit-app-region: drag) and swallows mouse events,
-// so we watch document-level mousemove (the editor fires it) and trigger by Y position.
+
 const editor = createEditor({ parent: app, onChange: scheduleSave })
 export { editor }
 
@@ -139,6 +163,8 @@ window.api.onFsEvent(async (ev) => {
 // Restore last session.
 ;(async () => {
   const s = await window.api.state.get()
+  applyTranslucency(s.translucency)
+  applyPad(s.editorPad)
   if (s.lastFolder) {
     currentFolder = s.lastFolder
     recentFiles = s.recentFiles || []
