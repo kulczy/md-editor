@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog, Tray, Menu, globalShortcut, nativeImage } from 'electron'
+import { app, BrowserWindow, ipcMain, dialog, Tray, Menu, globalShortcut, nativeImage, nativeTheme } from 'electron'
 import { join } from 'node:path'
 import { existsSync } from 'node:fs'
 import * as files from './files.js'
@@ -122,7 +122,12 @@ ipcMain.handle('hotkey:set', (_e, accel) => {
   return false
 })
 
-app.whenReady().then(createWindow)
+ipcMain.handle('theme:set', (_e, mode) => { nativeTheme.themeSource = mode; store.set({ theme: mode }) })
+
+app.whenReady().then(() => {
+  nativeTheme.themeSource = store.get('theme') // drives vibrancy, prefers-color-scheme, system colors
+  createWindow()
+})
 app.on('window-all-closed', () => {}) // ponytail: resident app, don't quit on close
 app.on('before-quit', () => { isQuitting = true })
 app.on('will-quit', () => { stopWatch?.(); globalShortcut.unregisterAll() })

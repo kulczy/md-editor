@@ -39,6 +39,14 @@ export function openSettings(opts) {
         <div class="folder-row"><span class="folder-path"></span><button id="set-change">Change…</button></div>
       </div>
       <div class="setting">
+        <label>Theme</label>
+        <div class="seg" id="set-theme">
+          <button data-theme="system">System</button>
+          <button data-theme="light">Light</button>
+          <button data-theme="dark">Dark</button>
+        </div>
+      </div>
+      <div class="setting">
         <label>Translucency <span class="val" id="set-bg-val"></span></label>
         <input id="set-bg" type="range" min="0" max="1" step="0.01">
       </div>
@@ -69,6 +77,12 @@ export function openSettings(opts) {
   document.body.appendChild(el)
   const $ = (s) => el.querySelector(s)
   $('.folder-path').textContent = opts.folder || '—'
+
+  const seg2 = $('#set-theme')
+  const markTheme = (m) => seg2.querySelectorAll('button').forEach((b) => b.classList.toggle('active', b.dataset.theme === m))
+  markTheme(opts.theme)
+  seg2.querySelectorAll('button').forEach((b) => { b.onclick = () => { markTheme(b.dataset.theme); opts.onTheme(b.dataset.theme) } })
+
   const bg = $('#set-bg'), pad = $('#set-pad')
   bg.value = opts.translucency
   pad.value = opts.editorPad

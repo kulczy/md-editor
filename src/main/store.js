@@ -12,6 +12,7 @@ export default new Store({
     fontSize: 16, // editor font size in px
     lineHeight: 1.6, // editor line height (unitless)
     fontFamily: 'sans', // 'sans' | 'mono'
+    theme: 'system', // 'system' | 'light' | 'dark' (drives nativeTheme.themeSource)
     windowBounds: null // {x,y,width,height} — remembered across launches
   }
 })
