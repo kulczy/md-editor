@@ -3,8 +3,30 @@ let el = null
 export function isSettingsOpen() { return !!el }
 export function closeSettings() { if (el) { el.remove(); el = null } }
 
-// opts: { folder, translucency (0..1), editorPad (px),
-//         onPickFolder()->Promise<path|null>, onTranslucency(t), onPad(px) }
+// Build an Electron accelerator string from a keydown. Uses e.code so Alt-remapped
+// keys stay correct. Requires a primary modifier (Cmd/Ctrl/Alt) + a non-modifier key.
+function toAccelerator(e) {
+  if (['Control', 'Shift', 'Alt', 'Meta', 'Dead'].includes(e.key)) return null
+  if (!(e.metaKey || e.ctrlKey || e.altKey)) return null
+  const parts = []
+  if (e.metaKey) parts.push('Command')
+  if (e.ctrlKey) parts.push('Control')
+  if (e.altKey) parts.push('Alt')
+  if (e.shiftKey) parts.push('Shift')
+  let k
+  if (e.code.startsWith('Key')) k = e.code.slice(3)
+  else if (e.code.startsWith('Digit')) k = e.code.slice(5)
+  else if (e.code === 'Space') k = 'Space'
+  else if (/^F\d+$/.test(e.code)) k = e.code
+  else if (e.code.startsWith('Arrow')) k = e.code.slice(5)
+  else k = e.key.length === 1 ? e.key.toUpperCase() : e.key
+  parts.push(k)
+  return parts.join('+')
+}
+const pretty = (a) => a.replace('CommandOrControl', '⌘').replace('Command', '⌘').replace('Control', '⌃').replace('Alt', '⌥').replace('Shift', '⇧').split('+').join(' ')
+
+// opts: { folder, translucency (0..1), editorPad (px), hotkey,
+//         onPickFolder()->Promise<path|null>, onTranslucency(t), onPad(px), onSetHotkey(accel)->Promise<bool> }
 export function openSettings(opts) {
   closeSettings()
   el = document.createElement('div')
@@ -24,6 +46,10 @@ export function openSettings(opts) {
         <label>Editor padding <span class="val" id="set-pad-val"></span></label>
         <input id="set-pad" type="range" min="16" max="160" step="2">
       </div>
+      <div class="setting">
+        <label>Global shortcut</label>
+        <button id="set-hotkey" class="hotkey-btn"></button>
+      </div>
     </div>`
   document.body.appendChild(el)
   const $ = (s) => el.querySelector(s)
@@ -37,7 +63,26 @@ export function openSettings(opts) {
   bg.addEventListener('input', () => { showBg(); opts.onTranslucency(parseFloat(bg.value)) })
   pad.addEventListener('input', () => { showPad(); opts.onPad(parseInt(pad.value, 10)) })
   $('#set-change').onclick = async () => { const f = await opts.onPickFolder(); if (f) $('.folder-path').textContent = f }
-  el.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeSettings(); e.stopPropagation() } })
+
+  // Global-shortcut recorder
+  const hk = $('#set-hotkey')
+  let recording = false
+  hk.textContent = pretty(opts.hotkey)
+  hk.onclick = () => { recording = true; hk.classList.add('recording'); hk.textContent = 'Press keys…' }
+
+  el.addEventListener('keydown', async (e) => {
+    if (recording) {
+      e.preventDefault(); e.stopPropagation()
+      if (e.key === 'Escape') { recording = false; hk.classList.remove('recording'); hk.textContent = pretty(opts.hotkey); return }
+      const accel = toAccelerator(e)
+      if (!accel) return // modifier-only or no primary modifier yet — keep waiting
+      recording = false; hk.classList.remove('recording')
+      if (await opts.onSetHotkey(accel)) { opts.hotkey = accel; hk.textContent = pretty(accel) }
+      else hk.textContent = pretty(opts.hotkey) + ' — in use'
+      return
+    }
+    if (e.key === 'Escape') { closeSettings(); e.stopPropagation() }
+  })
   el.addEventListener('mousedown', (e) => { if (e.target === el) closeSettings() })
   bg.focus()
 }

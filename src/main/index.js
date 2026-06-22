@@ -96,6 +96,15 @@ ipcMain.handle('window:toggleFloat', () => {
 ipcMain.handle('window:getFloat', () => win.isAlwaysOnTop())
 
 ipcMain.handle('window:hide', () => win?.hide())
+ipcMain.handle('hotkey:set', (_e, accel) => {
+  const old = store.get('hotkey')
+  try {
+    globalShortcut.unregister(old)
+    if (globalShortcut.register(accel, toggleWindow)) { store.set({ hotkey: accel }); return true }
+  } catch { /* invalid accelerator */ }
+  try { globalShortcut.register(old, toggleWindow) } catch {} // restore previous on failure
+  return false
+})
 
 app.whenReady().then(createWindow)
 app.on('window-all-closed', () => {}) // ponytail: resident app, don't quit on close

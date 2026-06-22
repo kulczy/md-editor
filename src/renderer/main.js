@@ -50,9 +50,11 @@ async function openSettingsPanel() {
     folder: currentFolder,
     translucency: s.translucency,
     editorPad: s.editorPad,
+    hotkey: s.hotkey,
     onPickFolder: async () => { const f = await window.api.pickFolder(); if (f) { await setFolder(f); await refreshIndex(); renderEmptyIfNeeded() } return f },
     onTranslucency: (t) => { applyTranslucency(t); window.api.state.set({ translucency: t }) },
-    onPad: (px) => { applyPad(px); window.api.state.set({ editorPad: px }) }
+    onPad: (px) => { applyPad(px); window.api.state.set({ editorPad: px }) },
+    onSetHotkey: (accel) => window.api.setHotkey(accel)
   })
 }
 window.addEventListener('keydown', (e) => {

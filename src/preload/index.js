@@ -14,6 +14,7 @@ contextBridge.exposeInMainWorld('api', {
   },
   pickFolder: () => ipcRenderer.invoke('pickFolder'),
   hideWindow: () => ipcRenderer.invoke('window:hide'),
+  setHotkey: (accel) => ipcRenderer.invoke('hotkey:set', accel),
   toggleFloat: () => ipcRenderer.invoke('window:toggleFloat'),
   getFloat: () => ipcRenderer.invoke('window:getFloat'),
   watch: (root) => ipcRenderer.invoke('fs:watch', root),
