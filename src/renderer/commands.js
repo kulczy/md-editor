@@ -2,7 +2,7 @@ export const text = ({ prompt, prefill = '' }) => ({ kind: 'text', prompt, prefi
 export const confirm = ({ prompt }) => ({ kind: 'confirm', prompt })
 
 // Drives steps one at a time against a UI adapter. Resolves values[] or null (cancelled).
-export function runSteps(steps, ctx, ui) {
+export function runSteps(steps, ui) {
   return new Promise((resolve) => {
     const values = []
     let i = 0

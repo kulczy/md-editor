@@ -3,7 +3,7 @@ import { runSteps, text } from './commands.js'
 
 let cfg = null
 let el = null
-let stepRunner = null // set by Task 8 for command steps
+let stepRunner = null // installed while a command's step-flow owns the input
 
 export function initPalette(config) { cfg = config }
 export function isPaletteOpen() { return !!el }
@@ -61,7 +61,7 @@ export function openPalette({ mode = 'files' } = {}) {
   function runCommand(command) {
     if (!command.steps || command.steps.length === 0) {
       // No steps — run immediately and close.
-      Promise.resolve(command.run([], cfg.ctx)).then(() => closePalette()).catch(() => closePalette())
+      Promise.resolve(command.run([])).then(() => closePalette()).catch(() => closePalette())
       return
     }
 
@@ -77,13 +77,12 @@ export function openPalette({ mode = 'files' } = {}) {
     input.placeholder = ''
 
     const { adapter, runner } = makeUiAdapter()
-    _internal().setStepRunner(runner)
+    stepRunner = runner
 
-    runSteps(steps, cfg.ctx || {}, adapter).then((values) => {
-      // Clear step runner regardless of outcome.
-      stepRunner = null
+    runSteps(steps, adapter).then((values) => {
+      stepRunner = null // release the input regardless of outcome
       if (values !== null) {
-        Promise.resolve(command.run(values, cfg.ctx)).finally(() => closePalette())
+        Promise.resolve(command.run(values)).finally(() => closePalette())
       } else {
         closePalette()
       }
@@ -128,12 +127,9 @@ export function openPalette({ mode = 'files' } = {}) {
     if (e.key === 'ArrowDown') { active = Math.min(active + 1, rows.length - 1); paint(); e.preventDefault() }
     else if (e.key === 'ArrowUp') { active = Math.max(active - 1, 0); paint(); e.preventDefault() }
     else if (e.key === 'Enter') { rows[active]?.run() }
-    else if (e.key === 'Escape') { closePalette(); e.stopPropagation() } // layered-Esc: Task 9 handles window-hide when palette closed
+    else if (e.key === 'Escape') { closePalette(); e.stopPropagation() } // layered-Esc: main.js hides the window only when nothing's open
   })
   el.addEventListener('mousedown', (e) => { if (e.target === el) closePalette() })
   render()
   input.focus()
 }
-
-// Lets command steps install their key handler on the palette input (used within this module).
-function _internal() { return { setStepRunner: (r) => { stepRunner = r } } }

@@ -17,7 +17,7 @@ function fakeUi() {
 
 test('runSteps collects text then confirm values', async () => {
   const f = fakeUi()
-  const p = runSteps([text({ prompt: 'name?' }), confirm({ prompt: 'sure?' })], {}, f.ui)
+  const p = runSteps([text({ prompt: 'name?' }), confirm({ prompt: 'sure?' })], f.ui)
   f.type('note.md'); f.enter()  // step 1
   f.enter()                      // confirm yes
   assert.deepEqual(await p, ['note.md', true])
@@ -25,7 +25,7 @@ test('runSteps collects text then confirm values', async () => {
 
 test('Esc mid-flow resolves null', async () => {
   const f = fakeUi()
-  const p = runSteps([text({ prompt: 'name?' })], {}, f.ui)
+  const p = runSteps([text({ prompt: 'name?' })], f.ui)
   f.esc()
   assert.equal(await p, null)
 })
