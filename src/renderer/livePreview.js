@@ -53,8 +53,8 @@ function buildDeco(view) {
       const ws = line.text.match(/^\s*/)[0].length // resolve at the marker, not col 0 (inner item starts after indent)
       let depth = 0
       for (let p = tree.resolveInner(line.from + ws, 1); p; p = p.parent) if (p.name === 'ListItem') depth++
-      // 6px = CM's base line padding; each nesting level adds 12px. Tighter leading than prose.
-      if (depth >= 1) ranges.push(Decoration.line({ attributes: { style: `padding-left:${6 + (depth - 1) * 12}px;line-height:calc(var(--editor-line-height,1.6)*0.8)` } }).range(line.from))
+      // 6px = CM's base line padding; each nesting level adds 4px. Slightly tighter leading than prose.
+      if (depth >= 1) ranges.push(Decoration.line({ attributes: { style: `padding-left:${6 + (depth - 1) * 4}px;line-height:calc(var(--editor-line-height,1.6)*0.9)` } }).range(line.from))
       pos = line.to + 1
     }
     tree.iterate({
