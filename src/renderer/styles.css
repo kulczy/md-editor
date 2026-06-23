@@ -99,7 +99,7 @@ body { font: 16px/1.6 -apple-system, system-ui, sans-serif; color: var(--text); 
 .settings .setting { margin-bottom: 16px; display: flex; flex-direction: column; gap: 7px; }
 .settings label { font-size: 13px; opacity: .8; display: flex; justify-content: space-between; }
 .settings .val { opacity: .55; }
-/* slimmer track + warm accent thumb */
+/* thumb takes the theme's heading-derived accent */
 .settings input[type=range] { width: 100%; accent-color: var(--accent); }
 .settings .folder-row { display: flex; align-items: center; gap: 9px; }
 .settings .folder-path { flex: 1; font-size: 12px; opacity: .7; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
