@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog, Tray, Menu, globalShortcut, nativeImage, nativeTheme } from 'electron'
+import { app, BrowserWindow, ipcMain, dialog, Tray, Menu, globalShortcut, nativeImage, nativeTheme, screen } from 'electron'
 import { join } from 'node:path'
 import { existsSync } from 'node:fs'
 import * as files from './files.js'
@@ -73,14 +73,24 @@ function setupResident() {
   if (!ok) console.warn(`[md] global hotkey "${hotkey}" is taken — skipping`) // ponytail: no rebind UI in v1
 }
 
+// First-run default: a centered window on the current display (under the cursor),
+// sized to a fraction of its work area, all values rounded.
+function defaultBounds() {
+  const wa = screen.getDisplayNearestPoint(screen.getCursorScreenPoint()).workArea
+  const width = Math.round(wa.width * 0.5)
+  const height = Math.round(wa.height * 0.75)
+  return { width, height, x: Math.round(wa.x + (wa.width - width) / 2), y: Math.round(wa.y + (wa.height - height) / 2) }
+}
+
 function createWindow() {
-  const b = store.get('windowBounds') // restore size/position (x/y undefined → Electron centers)
+  let b = store.get('windowBounds') // restore size/position across launches
+  if (!b) { b = defaultBounds(); store.set({ windowBounds: b }) } // first run → compute + persist default
   win = new BrowserWindow({
     show: false, // shown once the renderer signals it's styled + loaded (avoids a flash)
-    width: b?.width ?? 650,
-    height: b?.height ?? 640,
-    x: b?.x,
-    y: b?.y,
+    width: b.width,
+    height: b.height,
+    x: b.x,
+    y: b.y,
     vibrancy: 'fullscreen-ui', // stronger frosted glass (blurs windows behind, not just wallpaper)
     visualEffectState: 'active', // keep the glass even when the window isn't focused (e.g. pinned)
     backgroundColor: '#00000000', // transparent so the vibrancy material shows through
