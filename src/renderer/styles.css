@@ -18,7 +18,8 @@ body { font: 16px/1.6 -apple-system, system-ui, sans-serif; color: var(--text); 
 .cm-editor.cm-focused { outline: none; }
 .cm-editor .cm-selectionBackground, .cm-editor.cm-focused .cm-selectionBackground,
 .cm-editor ::selection { background: var(--selection); }
-.cm-cursor, .cm-dropCursor { border-left-color: var(--text); } /* drawn caret follows theme text color */
+/* outspecify CM's injected black .cm-cursor so the drawn caret follows the theme */
+.cm-editor .cm-cursor, .cm-editor .cm-dropCursor { border-left-color: var(--text); }
 
 /* Markdown rendering — colors come from theme variables. */
 .cm-md-h1 { font-size: 1.8em; font-weight: 700; }
