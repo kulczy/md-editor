@@ -35,7 +35,19 @@ body { font: 16px/1.6 -apple-system, system-ui, sans-serif; color: var(--text); 
 .cm-md-code { font-family: ui-monospace, monospace; color: var(--code-fg); background: var(--code-bg); padding: .1em .3em; border-radius: 4px; }
 .cm-md-quote { border-left: 3px solid var(--marker); padding-left: .8em; opacity: .9; }
 .cm-md-hr { border-bottom: 1px solid var(--marker); opacity: .6; }
-.cm-task-checkbox { margin: 0 .4em 0 0; vertical-align: -1px; cursor: pointer; accent-color: var(--checkbox); }
+/* Custom checkbox (native ones barely style): rounded, sized to font, theme-matched. */
+.cm-task-checkbox {
+  appearance: none; -webkit-appearance: none; box-sizing: border-box;
+  width: 1.15em; height: 1.15em; margin: 0 .5em 0 0; vertical-align: -0.2em;
+  border: 1.5px solid var(--marker); border-radius: 6px; background: transparent;
+  cursor: pointer; position: relative; transition: background .12s ease, border-color .12s ease;
+}
+.cm-task-checkbox:hover { border-color: var(--checkbox); }
+.cm-task-checkbox:checked { background: var(--checkbox); border-color: var(--checkbox); }
+.cm-task-checkbox:checked::after { /* checkmark carved out in the page background color */
+  content: ''; position: absolute; left: 34%; top: 14%; width: 28%; height: 54%;
+  border: solid rgb(var(--bg-rgb)); border-width: 0 2px 2px 0; transform: rotate(45deg);
+}
 
 .palette-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.25); display: flex; justify-content: center; align-items: flex-start; z-index: 100; }
 .palette { margin-top: 12vh; width: min(640px, 90vw); background: var(--panel-bg); color: var(--panel-text); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 12px 40px rgba(0,0,0,.3); overflow: hidden; }
