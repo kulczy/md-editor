@@ -35,7 +35,9 @@ body { font: 16px/1.6 -apple-system, system-ui, sans-serif; color: var(--text); 
 .cm-md-em { font-style: italic; }
 .cm-md-strike { text-decoration: line-through; color: var(--marker); }
 .cm-md-link { color: var(--link); text-decoration: underline; }
-.cm-md-code { font-family: ui-monospace, monospace; color: var(--code-fg); background: var(--code-bg); padding: .1em .3em; border-radius: 4px; }
+.cm-md-code { font-family: ui-monospace, monospace; font-size: .9em; color: var(--code-fg); background: var(--code-bg); padding: .1em .3em; border-radius: 4px; }
+/* fenced/indented code block: always monospace + background band (per line) */
+.cm-md-codeblock { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .9em; background: var(--code-bg); }
 .cm-md-quote { border-left: 3px solid var(--marker); padding-left: .8em; opacity: .9; }
 .cm-md-hr { border-bottom: 1px solid var(--marker); opacity: .6; }
 /* Custom checkbox (native ones barely style): rounded, sized to font, theme-matched. */

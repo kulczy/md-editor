@@ -70,6 +70,11 @@ function buildDeco(view) {
           ranges.push(Decoration.replace({ widget: new CheckboxWidget(checked, node.from) }).range(node.from, node.to))
         } else if (name === 'HorizontalRule') {
           ranges.push(lineDeco('cm-md-hr').range(doc.lineAt(node.from).from))
+          if (!onCursorLine(node.from)) ranges.push(hidden.range(node.from, node.to)) // hide the --- text; CSS draws the rule
+        } else if (name === 'FencedCode' || name === 'CodeBlock') {
+          let l = doc.lineAt(node.from).number
+          const last = doc.lineAt(Math.max(node.from, node.to - 1)).number // -1 so a trailing newline doesn't bleed onto the next line
+          for (; l <= last; l++) ranges.push(lineDeco('cm-md-codeblock').range(doc.line(l).from))
         } else if (name === 'Blockquote') {
           let l = doc.lineAt(node.from).number
           const last = doc.lineAt(node.to).number
