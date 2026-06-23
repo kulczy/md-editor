@@ -38,8 +38,8 @@ body { font: 16px/1.6 -apple-system, system-ui, sans-serif; color: var(--text); 
 /* Custom checkbox (native ones barely style): rounded, sized to font, theme-matched. */
 .cm-task-checkbox {
   appearance: none; -webkit-appearance: none; box-sizing: border-box;
-  width: 1.4em; height: 1.4em; margin: 0 .15em 0 0; vertical-align: -0.28em;
-  border: 1.5px solid var(--marker); border-radius: 7px; background: transparent;
+  width: 1.25em; height: 1.25em; margin: 0 .23em 0 0; vertical-align: -0.22em;
+  border: 1.5px solid var(--marker); border-radius: 6px; background: transparent;
   cursor: pointer; position: relative; transition: background .12s ease, border-color .12s ease;
 }
 .cm-task-checkbox:hover { border-color: var(--checkbox); }

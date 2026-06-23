@@ -4,6 +4,28 @@ import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirro
 import { markdown, markdownLanguage, markdownKeymap } from '@codemirror/lang-markdown'
 import { indentUnit } from '@codemirror/language'
 import livePreview from './livePreview.js'
+import { cycleTaskLine } from './task.js'
+
+// Cmd/Ctrl-L: rotate the selected line(s) through plain → todo → checked → plain.
+function cycleTask(view) {
+  const { state } = view
+  const changes = []
+  const done = new Set()
+  for (const r of state.selection.ranges) {
+    const a = state.doc.lineAt(r.from).number
+    const b = state.doc.lineAt(r.to).number
+    for (let n = a; n <= b; n++) {
+      if (done.has(n)) continue
+      done.add(n)
+      const line = state.doc.line(n)
+      const next = cycleTaskLine(line.text)
+      if (next !== line.text) changes.push({ from: line.from, to: line.to, insert: next })
+    }
+  }
+  if (!changes.length) return false
+  view.dispatch({ changes })
+  return true
+}
 
 // No syntax-highlight engine: all token styling is CSS (livePreview emits cm-md-* classes
 // that read theme variables — see themes.css / styles.css).
@@ -15,6 +37,7 @@ export function createEditor({ parent, onChange }) {
       extensions: [
         history(),
         keymap.of([
+          { key: 'Mod-l', run: cycleTask }, // add/rotate a todo on the current line(s)
           ...markdownKeymap, // Enter continues/ends lists & quotes; Backspace removes empty markers
           indentWithTab, // Tab / Shift-Tab to indent list items
           ...defaultKeymap,
