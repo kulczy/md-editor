@@ -1,7 +1,7 @@
 // Modal settings panel: folder, translucency, editor padding, font size/height, font, global shortcut.
 let el = null
 export function isSettingsOpen() { return !!el }
-export function closeSettings() { if (el) { el.remove(); el = null } }
+function closeSettings() { if (el) { el.remove(); el = null } }
 
 // Build an Electron accelerator string from a keydown. Uses e.code so Alt-remapped
 // keys stay correct. Requires a primary modifier (Cmd/Ctrl/Alt) + a non-modifier key.
@@ -25,8 +25,8 @@ function toAccelerator(e) {
 }
 const pretty = (a) => a.replace('CommandOrControl', '⌘').replace('Command', '⌘').replace('Control', '⌃').replace('Alt', '⌥').replace('Shift', '⇧').split('+').join(' ')
 
-// opts: { folder, translucency (0..1), editorPad (px), hotkey,
-//         onPickFolder()->Promise<path|null>, onTranslucency(t), onPad(px), onSetHotkey(accel)->Promise<bool> }
+// opts = current values + on*() callbacks for each control; see the openSettings({...}) call
+// in main.js for the full shape (it's the single caller and the source of truth).
 export function openSettings(opts) {
   closeSettings()
   el = document.createElement('div')
