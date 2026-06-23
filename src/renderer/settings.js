@@ -34,52 +34,64 @@ export function openSettings(opts) {
   el.innerHTML = `
     <div class="settings" role="dialog" aria-label="Settings">
       <h2>Settings</h2>
-      <div class="setting">
-        <label>Folder</label>
-        <div class="folder-row"><span class="folder-path"></span><button id="set-change">Change…</button></div>
-      </div>
-      <div class="setting">
-        <label>Theme</label>
-        <div class="seg" id="set-theme">
-          <button data-theme="system">System</button>
-          <button data-theme="light">Light</button>
-          <button data-theme="dark">Dark</button>
+
+      <div class="settings-group">
+        <div class="group-title">General</div>
+        <div class="setting">
+          <label>Folder</label>
+          <div class="folder-row"><span class="folder-path"></span><button id="set-change">Change…</button></div>
+        </div>
+        <div class="setting">
+          <label>Global shortcut</label>
+          <button id="set-hotkey" class="hotkey-btn"></button>
         </div>
       </div>
-      <div class="setting">
-        <label>Light theme</label>
-        <select id="set-light-theme"></select>
-      </div>
-      <div class="setting">
-        <label>Dark theme</label>
-        <select id="set-dark-theme"></select>
-      </div>
-      <div class="setting">
-        <label>Translucency <span class="val" id="set-bg-val"></span></label>
-        <input id="set-bg" type="range" min="0" max="1" step="0.01">
-      </div>
-      <div class="setting">
-        <label>Editor padding <span class="val" id="set-pad-val"></span></label>
-        <input id="set-pad" type="range" min="16" max="160" step="2">
-      </div>
-      <div class="setting">
-        <label>Font size <span class="val" id="set-fs-val"></span></label>
-        <input id="set-fs" type="range" min="12" max="28" step="1">
-      </div>
-      <div class="setting">
-        <label>Line height <span class="val" id="set-lh-val"></span></label>
-        <input id="set-lh" type="range" min="1.2" max="2.4" step="0.05">
-      </div>
-      <div class="setting">
-        <label>Font</label>
-        <div class="seg" id="set-font">
-          <button data-font="sans">Sans</button>
-          <button data-font="mono">Mono</button>
+
+      <div class="settings-group">
+        <div class="group-title">Appearance</div>
+        <div class="setting">
+          <label>Theme</label>
+          <div class="seg" id="set-theme">
+            <button data-theme="system">System</button>
+            <button data-theme="light">Light</button>
+            <button data-theme="dark">Dark</button>
+          </div>
+        </div>
+        <div class="setting">
+          <label>Light theme</label>
+          <select id="set-light-theme"></select>
+        </div>
+        <div class="setting">
+          <label>Dark theme</label>
+          <select id="set-dark-theme"></select>
+        </div>
+        <div class="setting">
+          <label>Translucency <span class="val" id="set-bg-val"></span></label>
+          <input id="set-bg" type="range" min="0" max="1" step="0.01">
         </div>
       </div>
-      <div class="setting">
-        <label>Global shortcut</label>
-        <button id="set-hotkey" class="hotkey-btn"></button>
+
+      <div class="settings-group">
+        <div class="group-title">Editor</div>
+        <div class="setting">
+          <label>Padding <span class="val" id="set-pad-val"></span></label>
+          <input id="set-pad" type="range" min="16" max="160" step="2">
+        </div>
+        <div class="setting">
+          <label>Font size <span class="val" id="set-fs-val"></span></label>
+          <input id="set-fs" type="range" min="12" max="28" step="1">
+        </div>
+        <div class="setting">
+          <label>Line height <span class="val" id="set-lh-val"></span></label>
+          <input id="set-lh" type="range" min="1.2" max="2.4" step="0.05">
+        </div>
+        <div class="setting">
+          <label>Font</label>
+          <div class="seg" id="set-font">
+            <button data-font="sans">Sans</button>
+            <button data-font="mono">Mono</button>
+          </div>
+        </div>
       </div>
     </div>`
   document.body.appendChild(el)

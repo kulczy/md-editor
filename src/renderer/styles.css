@@ -77,6 +77,10 @@ body { font: 16px/1.6 -apple-system, system-ui, sans-serif; color: var(--text); 
 .settings { width: min(410px, 90vw); color: var(--panel-text); border: 1px solid var(--border); border-radius: 16px; padding: 19px 21px; font-size: 14px;
   background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,0) 110px), var(--panel-bg); }
 .settings h2 { margin: 0 0 16px; font-size: 15px; font-weight: 600; }
+/* translucent layered card per section (no backdrop blur — fills only, so it stays snappy) */
+.settings-group { background: rgba(127,127,127,.08); border: 1px solid var(--border); border-radius: 12px; padding: 13px 15px; margin-bottom: 12px; }
+.settings-group .group-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; opacity: .5; margin-bottom: 12px; }
+.settings-group .setting:last-child { margin-bottom: 0; }
 .settings .setting { margin-bottom: 15px; display: flex; flex-direction: column; gap: 7px; }
 .settings label { font-size: 13px; opacity: .8; display: flex; justify-content: space-between; }
 .settings .val { opacity: .55; }
