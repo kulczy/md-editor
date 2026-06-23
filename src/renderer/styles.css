@@ -3,6 +3,12 @@ html, body, #app { height: 100%; margin: 0; }
 /* Theme bg composited over the native vibrancy: translucency 0 = opaque, 1 = full glass. */
 body { font: 16px/1.6 -apple-system, system-ui, sans-serif; color: var(--text); background: rgba(var(--bg-rgb), calc(1 - var(--translucency, 0.85))); }
 #app { display: flex; flex-direction: column; }
+/* Scrollbars (editor, palette list, settings overlay) — thumb tracks the theme via --elev-rgb. */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(var(--elev-rgb), .2); border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background: rgba(var(--elev-rgb), .35); background-clip: padding-box; }
+::-webkit-scrollbar-corner { background: transparent; }
 .titlebar { flex: 0 0 52px; display: flex; align-items: center; justify-content: center; -webkit-app-region: drag; font: 13px/1 -apple-system, system-ui, sans-serif; opacity: 0.55; user-select: none; }
 .cm-editor { flex: 1; min-height: 0; } /* fill space under the title strip; min-height:0 lets it scroll */
 /* .cm-editor .cm-content outspecifies CM6's own injected .cm-content rule.
