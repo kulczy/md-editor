@@ -113,6 +113,7 @@ export function openPalette({ mode = 'files' } = {}) {
       li.onclick = () => r.run()
       list.appendChild(li)
     })
+    list.children[active]?.scrollIntoView({ block: 'nearest' })
   }
 
   // cfg.renderCommands: returns rows for command mode, each row's run() fires the step flow.
