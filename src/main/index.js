@@ -177,5 +177,15 @@ app.whenReady().then(() => {
   createWindow()
 })
 app.on('window-all-closed', () => {}) // ponytail: resident app, don't quit on close
-app.on('before-quit', () => { isQuitting = true })
+
+// Hold the quit until the renderer flushes its unsaved buffer (debounced edits would otherwise be lost).
+let didFlush = false
+app.on('before-quit', (e) => {
+  isQuitting = true
+  if (didFlush || !win || win.isDestroyed()) return
+  e.preventDefault()
+  win.webContents.send('quit-flush')
+  setTimeout(() => { didFlush = true; app.quit() }, 1000) // ponytail: don't hang quit if the renderer never acks
+})
+ipcMain.on('quit-flushed', () => { didFlush = true; app.quit() })
 app.on('will-quit', () => { stopWatch?.(); globalShortcut.unregisterAll() })

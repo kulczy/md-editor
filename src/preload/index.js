@@ -21,5 +21,7 @@ contextBridge.exposeInMainWorld('api', {
   getFloat: () => ipcRenderer.invoke('window:getFloat'),
   watch: (root) => ipcRenderer.invoke('fs:watch', root),
   onFsEvent: (cb) => ipcRenderer.on('fs:event', (_e, ev) => cb(ev)),
-  onMenu: (cb) => ipcRenderer.on('menu', (_e, action) => cb(action))
+  onMenu: (cb) => ipcRenderer.on('menu', (_e, action) => cb(action)),
+  onQuitFlush: (cb) => ipcRenderer.on('quit-flush', () => cb()),
+  quitFlushed: () => ipcRenderer.send('quit-flushed')
 })

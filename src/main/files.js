@@ -46,6 +46,7 @@ export const deleteFile = async (root, rel) => fs.rm(within(root, rel))
 
 export function watchFolder(root, send) {
   const w = chokidar.watch(root, {
+    useFsEvents: false, // ponytail: prebuilt fsevents isn't built for Electron's ABI; fs.watch is fine here
     ignoreInitial: true,
     ignored: (p) => p.includes('node_modules') || /(^|[/\\])\../.test(p)
   })

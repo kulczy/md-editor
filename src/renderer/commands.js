@@ -47,9 +47,12 @@ export function makeCommands(ctx) {
       id: 'rename', label: 'Rename file',
       steps: [text({ prompt: 'New name', prefill: '' })], // prefill set dynamically in palette.js
       async run([name]) {
+        const from = ctx.currentFile()
         const rel = cleanName(name)
-        if (!rel) return
-        await ctx.fs.rename(ctx.currentFolder(), ctx.currentFile(), rel)
+        if (!from || !rel) return
+        await ctx.save() // flush edits to the old path so the rename carries them over
+        ctx.detachFile() // detach so openFile()'s leading save() can't recreate the old name
+        await ctx.fs.rename(ctx.currentFolder(), from, rel)
         await ctx.refreshIndex()
         await ctx.openFile(rel)
       }
@@ -58,8 +61,13 @@ export function makeCommands(ctx) {
       id: 'delete', label: 'Delete file',
       steps: [confirm({ prompt: 'Delete the current file?' })],
       async run() {
-        await ctx.fs.delete(ctx.currentFolder(), ctx.currentFile())
-        await ctx.refreshIndex()
+        const target = ctx.currentFile()
+        if (!target) return
+        ctx.closeCurrentFile() // clear buffer + cancel pending save before delete (no resurrection, no watcher race)
+        await ctx.fs.delete(ctx.currentFolder(), target)
+        await ctx.refreshIndex() // drops the deleted file from recents
+        const next = ctx.recents()[0] // fall back to the most-recent surviving note instead of a blank window
+        if (next) await ctx.openFile(next)
       }
     },
     {

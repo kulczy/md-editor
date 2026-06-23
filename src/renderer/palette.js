@@ -12,7 +12,7 @@ export function closePalette() {
   if (el) { el.remove(); el = null; stepRunner = null }
 }
 
-export function openPalette({ mode = 'files' } = {}) {
+export function openPalette({ mode = 'files', commandId = null } = {}) {
   closePalette()
   el = document.createElement('div')
   el.className = 'palette-backdrop'
@@ -136,4 +136,10 @@ export function openPalette({ mode = 'files' } = {}) {
   el.addEventListener('mousedown', (e) => { if (e.target === el) closePalette() })
   render()
   input.focus()
+
+  // Jump straight into a command's step-flow (e.g. clicking the title runs 'rename').
+  if (commandId) {
+    const command = (cfg.commands || []).find((c) => c.id === commandId)
+    if (command) runCommand(command)
+  }
 }

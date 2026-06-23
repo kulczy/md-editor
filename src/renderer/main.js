@@ -12,15 +12,20 @@ export let currentFile = null
 let saveTimer = null
 let dirty = false
 
-export let fileIndex = []
-export async function refreshIndex() {
-  fileIndex = currentFolder ? await window.api.fs.list(currentFolder) : []
-}
-
 let recentFiles = []
 export async function pushRecent(rel) {
   recentFiles = [rel, ...recentFiles.filter((r) => r !== rel)].slice(0, 50)
   await window.api.state.set({ recentFiles })
+}
+
+export let fileIndex = []
+export async function refreshIndex() {
+  fileIndex = currentFolder ? await window.api.fs.list(currentFolder) : []
+  // Drop deleted/renamed (and stale cross-folder) entries from recents — the palette shows
+  // them on an empty query, so a ghost here is openable and ENOENTs on read.
+  const exists = new Set(fileIndex)
+  const kept = recentFiles.filter((r) => exists.has(r))
+  if (kept.length !== recentFiles.length) { recentFiles = kept; await window.api.state.set({ recentFiles }) }
 }
 
 const pin = document.createElement('div')
@@ -78,8 +83,12 @@ async function openSettingsPanel() {
 const ctx = {
   currentFolder: () => currentFolder,
   currentFile: () => currentFile,
+  recents: () => recentFiles,
   fs: window.api.fs,
   openFile,
+  save,
+  detachFile,
+  closeCurrentFile,
   refreshIndex,
   pickFolder: window.api.pickFolder,
   setFolder,
@@ -115,8 +124,12 @@ window.addEventListener('keydown', (e) => {
 // Draggable title strip (frameless window has no native title). Centered note name.
 const titlebar = document.createElement('div')
 titlebar.className = 'titlebar'
+const titleName = document.createElement('span')
+titleName.className = 'titlebar-name' // no-drag + clickable; the rest of the strip still drags the window
+titleName.onclick = () => { if (currentFile) openPalette({ mode: 'commands', commandId: 'rename' }) } // click title → rename
+titlebar.appendChild(titleName)
 app.appendChild(titlebar)
-function setTitle(rel) { titlebar.textContent = rel ? rel.split('/').pop().replace(/\.md$/, '') : '' }
+function setTitle(rel) { titleName.textContent = rel ? rel.split('/').pop().replace(/\.md$/, '') : '' }
 
 const editor = createEditor({ parent: app, onChange: scheduleSave })
 export { editor }
@@ -135,6 +148,20 @@ export async function save(text = editor.getDoc()) {
   dirty = false
 }
 
+// Stop tracking the current file: cancel any pending save so nothing writes to it later.
+// Leaves the editor buffer alone (rename reloads it; openFile overwrites it).
+export function detachFile() {
+  currentFile = null
+  clearTimeout(saveTimer); dirty = false
+}
+
+// detachFile + clear the visible editor/title. Used on delete and folder switch.
+export function closeCurrentFile() {
+  detachFile()
+  editor.setDoc(''); setTitle('')
+  renderEmptyIfNeeded()
+}
+
 export async function openFile(rel) {
   await save() // flush any pending edits to the file we're leaving
   let text
@@ -149,6 +176,8 @@ export async function openFile(rel) {
 }
 
 export async function setFolder(folder) {
+  await save() // flush edits to the folder we're leaving, while currentFolder still points there
+  closeCurrentFile() // detach + blank editor so the next openFile can't write the old name into the new folder
   currentFolder = folder
   await window.api.state.set({ lastFolder: folder })
   await window.api.watch(currentFolder)
@@ -174,7 +203,7 @@ function renderEmptyIfNeeded() {
 window.api.onFsEvent(async (ev) => {
   await refreshIndex()
   if (ev.rel === currentFile) {
-    if (ev.type === 'unlink') { editor.setDoc(''); currentFile = null; setTitle(''); clearTimeout(saveTimer); dirty = false; renderEmptyIfNeeded() }
+    if (ev.type === 'unlink') closeCurrentFile()
     else if (ev.type === 'change' && !dirty) {
       const text = await window.api.fs.read(currentFolder, ev.rel)
       if (text !== editor.getDoc()) {
@@ -202,12 +231,13 @@ window.api.onFsEvent(async (ev) => {
     recentFiles = s.recentFiles || []
     await refreshIndex()
     await window.api.watch(currentFolder)
-    if (s.lastFile) {
-      try { await openFile(s.lastFile) } catch { currentFile = null }
-    }
+    // Reopen last file only if it still exists; otherwise fall back to the first note (never a blank ghost).
+    const target = fileIndex.includes(s.lastFile) ? s.lastFile : fileIndex[0]
+    if (target) await openFile(target)
   }
   renderEmptyIfNeeded()
   window.api.ready() // appearance applied + file loaded → safe to show the window
 })()
 
-window.addEventListener('beforeunload', () => { save() })
+// On quit, main holds the app open until we flush the buffer (beforeunload can't await async IPC).
+window.api.onQuitFlush(async () => { await save(); window.api.quitFlushed() })
