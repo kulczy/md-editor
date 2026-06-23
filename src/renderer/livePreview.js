@@ -44,9 +44,20 @@ function buildDeco(view) {
   const lineDeco = (cls) => Decoration.line({ class: cls })
 
   // Collect unsorted; Decoration.set(_, true) sorts by (from, startSide) for us.
+  const tree = syntaxTree(view.state)
   const ranges = []
   for (const { from, to } of view.visibleRanges) {
-    syntaxTree(view.state).iterate({
+    // Extra 12px of indent per nesting level for list/todo items (on top of the source spaces).
+    for (let pos = from; pos <= to;) {
+      const line = doc.lineAt(pos)
+      const ws = line.text.match(/^\s*/)[0].length // resolve at the marker, not col 0 (inner item starts after indent)
+      let depth = 0
+      for (let p = tree.resolveInner(line.from + ws, 1); p; p = p.parent) if (p.name === 'ListItem') depth++
+      // 6px = CM's base line padding; each nesting level adds 12px on top.
+      if (depth >= 1) ranges.push(Decoration.line({ attributes: { style: `padding-left:${6 + (depth - 1) * 12}px` } }).range(line.from))
+      pos = line.to + 1
+    }
+    tree.iterate({
       from, to,
       enter(node) {
         const name = node.name
