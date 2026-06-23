@@ -1,6 +1,6 @@
 {
   "name": "md-editor",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Keyboard-first markdown editor",
   "author": "kulczy",
   "type": "module",
@@ -14,8 +14,13 @@
   "build": {
     "appId": "com.mdeditor.app",
     "productName": "md",
-    "files": ["out/**/*", "build/iconTemplate.png"],
-    "directories": { "output": "release" },
+    "files": [
+      "out/**/*",
+      "build/iconTemplate.png"
+    ],
+    "directories": {
+      "output": "release"
+    },
     "mac": {
       "target": "dmg",
       "category": "public.app-category.productivity",
