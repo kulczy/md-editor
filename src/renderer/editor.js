@@ -1,4 +1,4 @@
-import { EditorView, keymap } from '@codemirror/view'
+import { EditorView, keymap, drawSelection, dropCursor } from '@codemirror/view'
 import { EditorState } from '@codemirror/state'
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands'
 import { markdown, markdownLanguage, markdownKeymap } from '@codemirror/lang-markdown'
@@ -43,6 +43,8 @@ export function createEditor({ parent, onChange }) {
       doc: '',
       extensions: [
         history(),
+        drawSelection(), // CM-drawn selection/caret that hugs the text (native selection painted the line padding)
+        dropCursor(),
         keymap.of([
           { key: 'Mod-l', run: cycleTask }, // add/rotate a todo on the current line(s)
           ...markdownKeymap, // Enter continues/ends lists & quotes; Backspace removes empty markers
