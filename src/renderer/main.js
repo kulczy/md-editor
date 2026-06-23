@@ -1,7 +1,8 @@
-import { createEditor, THEME_NAMES } from './editor.js'
+import { createEditor } from './editor.js'
 import { initPalette, openPalette, isPaletteOpen } from './palette.js'
 import { makeCommands } from './commands.js'
 import { openSettings, isSettingsOpen } from './settings.js'
+import { THEME_NAMES } from './themes.js'
 
 const app = document.getElementById('app')
 app.textContent = ''
@@ -39,24 +40,17 @@ window.addEventListener('keydown', async (e) => {
 
 // Appearance — apply live to CSS, persist via store. isDark() reflects nativeTheme.themeSource
 // (set in main from the theme setting), so it's correct for system/light/dark.
-let translucency = 0.85
-let lightTheme = 'Default'
-let darkTheme = 'Default'
+let lightTheme = 'Light'
+let darkTheme = 'Dark'
 const isDark = () => matchMedia('(prefers-color-scheme: dark)').matches
-function applyTranslucency(t) { // t: 0..1 (1 = fully glassy). Tint the body over the native vibrancy.
-  translucency = t
-  document.body.style.backgroundColor = `rgba(${isDark() ? '28,28,30' : '245,245,247'}, ${1 - t})`
-}
-function applyPad(px) { document.documentElement.style.setProperty('--editor-pad', px + 'px') }
+const setVar = (k, v) => document.documentElement.style.setProperty(k, v)
+function applyTranslucency(t) { setVar('--translucency', t) } // 0 = opaque theme bg, 1 = full glass
+function applyPad(px) { setVar('--editor-pad', px + 'px') }
 const FONTS = { sans: '-apple-system, system-ui, sans-serif', mono: 'ui-monospace, SFMono-Regular, Menlo, monospace' }
-function applyFont(fam) { document.documentElement.style.setProperty('--editor-font-family', FONTS[fam] || FONTS.sans) }
-function applyFontSize(px) { document.documentElement.style.setProperty('--editor-font-size', px + 'px') }
-function applyLineHeight(lh) { document.documentElement.style.setProperty('--editor-line-height', lh) }
-function syncTheme() { // pick the active palette for the resolved mode, then re-tint
-  const dark = isDark()
-  editor.setHighlight(dark ? 'dark' : 'light', dark ? darkTheme : lightTheme)
-  applyTranslucency(translucency)
-}
+function applyFont(fam) { setVar('--editor-font-family', FONTS[fam] || FONTS.sans) }
+function applyFontSize(px) { setVar('--editor-font-size', px + 'px') }
+function applyLineHeight(lh) { setVar('--editor-line-height', lh) }
+function syncTheme() { document.documentElement.dataset.theme = isDark() ? darkTheme : lightTheme } // active CSS theme
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncTheme) // fires on themeSource/OS change
 async function openSettingsPanel() {
   const s = await window.api.state.get()
@@ -198,14 +192,14 @@ window.api.onFsEvent(async (ev) => {
 // Restore last session.
 ;(async () => {
   const s = await window.api.state.get()
-  translucency = s.translucency
-  lightTheme = s.lightTheme
-  darkTheme = s.darkTheme
+  lightTheme = THEME_NAMES.light.includes(s.lightTheme) ? s.lightTheme : THEME_NAMES.light[0]
+  darkTheme = THEME_NAMES.dark.includes(s.darkTheme) ? s.darkTheme : THEME_NAMES.dark[0]
+  applyTranslucency(s.translucency)
   applyPad(s.editorPad)
   applyFont(s.fontFamily)
   applyFontSize(s.fontSize)
   applyLineHeight(s.lineHeight)
-  syncTheme() // editor highlight + translucency tint for the resolved (system/light/dark) mode
+  syncTheme() // set data-theme for the resolved (system/light/dark) mode
   if (s.lastFolder) {
     currentFolder = s.lastFolder
     recentFiles = s.recentFiles || []

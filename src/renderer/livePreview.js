@@ -25,7 +25,8 @@ const STYLE = {
   StrongEmphasis: 'cm-md-strong',
   Emphasis: 'cm-md-em',
   InlineCode: 'cm-md-code',
-  Strikethrough: 'cm-md-strike'
+  Strikethrough: 'cm-md-strike',
+  Link: 'cm-md-link' // URL/brackets are hidden; the visible link text gets this class
 }
 const MARKS = new Set(['EmphasisMark', 'CodeMark', 'StrikethroughMark', 'HeaderMark', 'QuoteMark', 'LinkMark', 'URL'])
 const hidden = Decoration.replace({})

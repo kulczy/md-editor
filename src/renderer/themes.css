@@ -1,0 +1,61 @@
+/* Theme = a set of CSS variables. The app styles read these (see styles.css).
+   --bg-rgb is "R, G, B"; the body composites it over the native vibrancy at
+   alpha (1 - --translucency), so translucency 0 = opaque theme bg, 1 = full glass.
+   To add a theme: add a [data-theme="Name"] block here and the name to themes.js. */
+
+:root {
+  color-scheme: light dark;
+  --translucency: 0.85; /* set live from the slider; 0 = opaque theme bg, 1 = full glass */
+  /* fallback theme (used if data-theme is missing/unknown) */
+  --bg-rgb: 245, 245, 247;
+  --text: #1a1a1a;
+  --heading: #111111;
+  --link: #0a66c2;
+  --code-fg: #a4264b;
+  --code-bg: rgba(127, 127, 127, 0.14);
+  --marker: #a0a4a8;
+  --checkbox: #0a66c2;
+  --selection: rgba(10, 102, 194, 0.18);
+  --panel-bg: #ffffff;
+  --panel-text: #1a1a1a;
+  --border: rgba(0, 0, 0, 0.14);
+}
+
+/* ---- Light themes ---- */
+[data-theme="Light"] {
+  --bg-rgb: 250, 250, 252; --text: #1f2328; --heading: #111111; --link: #0a66c2;
+  --code-fg: #a4264b; --code-bg: rgba(0, 0, 0, 0.06); --marker: #9aa0a6; --checkbox: #0a66c2;
+  --selection: rgba(10, 102, 194, 0.18); --panel-bg: #ffffff; --panel-text: #1f2328; --border: rgba(0, 0, 0, 0.12);
+}
+[data-theme="GitHub"] {
+  --bg-rgb: 255, 255, 255; --text: #1f2328; --heading: #1f2328; --link: #0969da;
+  --code-fg: #cf222e; --code-bg: rgba(175, 184, 193, 0.2); --marker: #8c959f; --checkbox: #0969da;
+  --selection: rgba(9, 105, 218, 0.15); --panel-bg: #ffffff; --panel-text: #1f2328; --border: #d0d7de;
+}
+[data-theme="Solarized Light"] {
+  --bg-rgb: 253, 246, 227; --text: #586e75; --heading: #073642; --link: #268bd2;
+  --code-fg: #2aa198; --code-bg: rgba(101, 123, 131, 0.12); --marker: #93a1a1; --checkbox: #268bd2;
+  --selection: rgba(38, 139, 210, 0.18); --panel-bg: #fdf6e3; --panel-text: #586e75; --border: rgba(101, 123, 131, 0.25);
+}
+
+/* ---- Dark themes ---- */
+[data-theme="Dark"] {
+  --bg-rgb: 28, 28, 30; --text: #e6e6e6; --heading: #f2f2f2; --link: #6cb6ff;
+  --code-fg: #f0b0c0; --code-bg: rgba(255, 255, 255, 0.1); --marker: #6e7681; --checkbox: #6cb6ff;
+  --selection: rgba(108, 182, 255, 0.22); --panel-bg: #2a2a2e; --panel-text: #e6e6e6; --border: rgba(255, 255, 255, 0.14);
+}
+[data-theme="One Dark"] {
+  --bg-rgb: 40, 44, 52; --text: #abb2bf; --heading: #e5c07b; --link: #61afef;
+  --code-fg: #98c379; --code-bg: rgba(255, 255, 255, 0.07); --marker: #5c6370; --checkbox: #61afef;
+  --selection: rgba(97, 175, 239, 0.22); --panel-bg: #2c313a; --panel-text: #abb2bf; --border: rgba(255, 255, 255, 0.1);
+}
+[data-theme="Dracula"] {
+  --bg-rgb: 40, 42, 54; --text: #f8f8f2; --heading: #bd93f9; --link: #8be9fd;
+  --code-fg: #50fa7b; --code-bg: rgba(255, 255, 255, 0.07); --marker: #6272a4; --checkbox: #50fa7b;
+  --selection: rgba(139, 233, 253, 0.22); --panel-bg: #343746; --panel-text: #f8f8f2; --border: rgba(255, 255, 255, 0.1);
+}
+[data-theme="Solarized Dark"] {
+  --bg-rgb: 0, 43, 54; --text: #93a1a1; --heading: #eee8d5; --link: #268bd2;
+  --code-fg: #2aa198; --code-bg: rgba(255, 255, 255, 0.06); --marker: #586e75; --checkbox: #268bd2;
+  --selection: rgba(38, 139, 210, 0.22); --panel-bg: #073642; --panel-text: #93a1a1; --border: rgba(255, 255, 255, 0.08);
+}
