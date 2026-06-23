@@ -6,11 +6,11 @@
 :root {
   color-scheme: light dark;
   --translucency: 0.85; /* set live from the slider; 0 = opaque theme bg, 1 = full glass */
-  /* Warm signature accent (the image's orange). Defined only here so it cascades to every
+  /* Signature accent (chartreuse/lime). Defined only here so it cascades to every
      theme as a brand color — theme blocks below don't override it. */
-  --accent-rgb: 255, 122, 69;
+  --accent-rgb: 200, 242, 50;
   --accent: rgb(var(--accent-rgb));
-  --accent-grad: linear-gradient(135deg, #ff8a4d, #ff5e36);
+  --accent-grad: linear-gradient(135deg, #d6f84a, #b4e000);
   /* fallback theme (used if data-theme is missing/unknown) */
   --bg-rgb: 245, 245, 247;
   --text: #1a1a1a;
