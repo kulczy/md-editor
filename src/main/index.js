@@ -3,6 +3,7 @@ import { join } from 'node:path'
 import { existsSync } from 'node:fs'
 import * as files from './files.js'
 import store from './store.js'
+import { checkUpdate } from './update.js'
 
 if (!app.requestSingleInstanceLock()) app.quit()
 app.on('second-instance', () => { if (win) { win.show(); win.focus() } })
@@ -175,6 +176,7 @@ app.whenReady().then(() => {
   nativeTheme.themeSource = store.get('theme') // drives vibrancy, prefers-color-scheme, system colors
   buildMenu()
   createWindow()
+  checkUpdate(app.getVersion()) // fire-and-forget: notify if a newer release exists
 })
 app.on('window-all-closed', () => {}) // ponytail: resident app, don't quit on close
 
