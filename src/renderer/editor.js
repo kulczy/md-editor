@@ -23,7 +23,14 @@ function cycleTask(view) {
     }
   }
   if (!changes.length) return false
-  view.dispatch({ changes })
+  const spec = { changes }
+  // Single cursor on one line → drop the caret at the end of the new line (ready to type the todo).
+  const main = state.selection.main
+  if (state.selection.ranges.length === 1 && state.doc.lineAt(main.from).number === state.doc.lineAt(main.to).number) {
+    const line = state.doc.lineAt(main.from)
+    spec.selection = { anchor: line.from + cycleTaskLine(line.text).length }
+  }
+  view.dispatch(spec)
   return true
 }
 
