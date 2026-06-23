@@ -3,6 +3,7 @@ import { EditorState } from '@codemirror/state'
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands'
 import { markdown, markdownLanguage, markdownKeymap } from '@codemirror/lang-markdown'
 import { indentUnit } from '@codemirror/language'
+import { search, searchKeymap, openSearchPanel, highlightSelectionMatches } from '@codemirror/search'
 import livePreview from './livePreview.js'
 import { cycleTaskLine } from './task.js'
 
@@ -47,6 +48,7 @@ export function createEditor({ parent, onChange }) {
         dropCursor(),
         keymap.of([
           { key: 'Mod-l', run: cycleTask }, // add/rotate a todo on the current line(s)
+          ...searchKeymap, // Cmd-G/Shift-Cmd-G next/prev, etc. (panel opened via the menu)
           ...markdownKeymap, // Enter continues/ends lists & quotes; Backspace removes empty markers
           indentWithTab, // Tab / Shift-Tab to indent list items
           ...defaultKeymap,
@@ -55,17 +57,22 @@ export function createEditor({ parent, onChange }) {
         markdown({ base: markdownLanguage }), // GFM: task lists, tables, strikethrough, autolinks
         indentUnit.of('    '), // 4-space indent step (2x the default) for Tab / list nesting
         EditorState.tabSize.of(4),
+        search({ top: true }), // find panel docks at the top of the editor
+        highlightSelectionMatches(),
         livePreview,
         EditorView.lineWrapping,
         EditorView.updateListener.of((u) => { if (u.docChanged) onChange(view.state.doc.toString()) })
       ]
     })
   })
+  view.contentDOM.setAttribute('spellcheck', 'false') // off by default; toggled from settings
   return {
     view,
     setDoc(text) {
       view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: text } })
     },
-    getDoc: () => view.state.doc.toString()
+    getDoc: () => view.state.doc.toString(),
+    openFind: () => openSearchPanel(view),
+    setSpellcheck: (on) => view.contentDOM.setAttribute('spellcheck', on ? 'true' : 'false')
   }
 }

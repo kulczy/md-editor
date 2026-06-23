@@ -92,6 +92,13 @@ export function openSettings(opts) {
             <button data-font="mono">Mono</button>
           </div>
         </div>
+        <div class="setting">
+          <label>Spellcheck</label>
+          <div class="seg" id="set-spell">
+            <button data-spell="off">Off</button>
+            <button data-spell="on">On</button>
+          </div>
+        </div>
       </div>
     </div>`
   document.body.appendChild(el)
@@ -132,6 +139,11 @@ export function openSettings(opts) {
   const markFont = (fam) => seg.querySelectorAll('button').forEach((b) => b.classList.toggle('active', b.dataset.font === fam))
   markFont(opts.fontFamily)
   seg.querySelectorAll('button').forEach((b) => { b.onclick = () => { markFont(b.dataset.font); opts.onFontFamily(b.dataset.font) } })
+
+  const spellSeg = $('#set-spell')
+  const markSpell = (on) => spellSeg.querySelectorAll('button').forEach((b) => b.classList.toggle('active', b.dataset.spell === (on ? 'on' : 'off')))
+  markSpell(opts.spellcheck)
+  spellSeg.querySelectorAll('button').forEach((b) => { b.onclick = () => { const on = b.dataset.spell === 'on'; markSpell(on); opts.onSpellcheck(on) } })
 
   $('#set-change').onclick = async () => { const f = await opts.onPickFolder(); if (f) $('.folder-path').textContent = f }
 

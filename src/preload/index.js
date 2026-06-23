@@ -20,5 +20,6 @@ contextBridge.exposeInMainWorld('api', {
   toggleFloat: () => ipcRenderer.invoke('window:toggleFloat'),
   getFloat: () => ipcRenderer.invoke('window:getFloat'),
   watch: (root) => ipcRenderer.invoke('fs:watch', root),
-  onFsEvent: (cb) => ipcRenderer.on('fs:event', (_e, ev) => cb(ev))
+  onFsEvent: (cb) => ipcRenderer.on('fs:event', (_e, ev) => cb(ev)),
+  onMenu: (cb) => ipcRenderer.on('menu', (_e, action) => cb(action))
 })

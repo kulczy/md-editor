@@ -12,6 +12,7 @@ export default new Store({
     fontSize: 16, // editor font size in px
     lineHeight: 1.6, // editor line height (unitless)
     fontFamily: 'sans', // 'sans' | 'mono'
+    spellcheck: false, // native prose spellcheck in the editor (opt-in)
     theme: 'system', // 'system' | 'light' | 'dark' (drives nativeTheme.themeSource)
     lightTheme: 'Light', // CSS theme used in light mode (see themes.css)
     darkTheme: 'Dark', // CSS theme used in dark mode

@@ -135,8 +135,45 @@ ipcMain.handle('hotkey:set', (_e, accel) => {
 
 ipcMain.handle('theme:set', (_e, mode) => { nativeTheme.themeSource = mode; store.set({ theme: mode }) })
 
+// Standard app menu. Editing commands use built-in roles (so copy/paste/undo just work);
+// app-specific items send a single 'menu' channel the renderer dispatches on.
+function buildMenu() {
+  const isMac = process.platform === 'darwin'
+  const send = (action) => () => win?.webContents.send('menu', action)
+  const template = [
+    ...(isMac ? [{ label: app.name, submenu: [
+      { role: 'about' },
+      { type: 'separator' },
+      { label: 'Settings…', accelerator: 'CmdOrCtrl+,', click: send('settings') },
+      { type: 'separator' },
+      { role: 'hide' }, { role: 'hideOthers' }, { role: 'unhide' },
+      { type: 'separator' },
+      { role: 'quit' }
+    ] }] : []),
+    { label: 'File', submenu: [
+      { label: 'Open File…', accelerator: 'CmdOrCtrl+P', click: send('palette-files') },
+      { label: 'Run Command…', accelerator: 'CmdOrCtrl+Shift+P', click: send('palette-commands') },
+      ...(isMac ? [] : [{ type: 'separator' }, { label: 'Settings…', accelerator: 'CmdOrCtrl+,', click: send('settings') }, { role: 'quit' }])
+    ] },
+    { label: 'Edit', submenu: [
+      { role: 'undo' }, { role: 'redo' }, { type: 'separator' },
+      { role: 'cut' }, { role: 'copy' }, { role: 'paste' }, { role: 'selectAll' },
+      { type: 'separator' },
+      { label: 'Find…', accelerator: 'CmdOrCtrl+F', click: send('find') }
+    ] },
+    { label: 'View', submenu: [
+      { label: 'Float on Top', accelerator: 'CmdOrCtrl+Shift+T', click: send('toggle-float') },
+      { type: 'separator' },
+      { role: 'reload' }, { role: 'toggleDevTools' }, { type: 'separator' }, { role: 'togglefullscreen' }
+    ] },
+    { role: 'windowMenu' }
+  ]
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template))
+}
+
 app.whenReady().then(() => {
   nativeTheme.themeSource = store.get('theme') // drives vibrancy, prefers-color-scheme, system colors
+  buildMenu()
   createWindow()
 })
 app.on('window-all-closed', () => {}) // ponytail: resident app, don't quit on close

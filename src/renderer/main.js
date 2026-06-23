@@ -32,12 +32,6 @@ pin.title = 'Unpin (disable always-on-top)'
 pin.onclick = async () => { await window.api.toggleFloat(); syncPin() } // pin only shows when floating → click turns it off
 syncPin()
 
-window.addEventListener('keydown', async (e) => {
-  if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 't') {
-    e.preventDefault(); await window.api.toggleFloat(); syncPin()
-  }
-})
-
 // Appearance — apply live to CSS, persist via store. isDark() reflects nativeTheme.themeSource
 // (set in main from the theme setting), so it's correct for system/light/dark.
 let lightTheme = 'Light'
@@ -75,12 +69,11 @@ async function openSettingsPanel() {
     onFontFamily: (fam) => { applyFont(fam); window.api.state.set({ fontFamily: fam }) },
     onTheme: (mode) => window.api.setTheme(mode), // main flips nativeTheme → matchMedia 'change' → syncTheme()
     onLightTheme: (name) => { lightTheme = name; syncTheme(); window.api.state.set({ lightTheme: name }) },
-    onDarkTheme: (name) => { darkTheme = name; syncTheme(); window.api.state.set({ darkTheme: name }) }
+    onDarkTheme: (name) => { darkTheme = name; syncTheme(); window.api.state.set({ darkTheme: name }) },
+    spellcheck: s.spellcheck,
+    onSpellcheck: (on) => { editor.setSpellcheck(on); window.api.state.set({ spellcheck: on }) }
   })
 }
-window.addEventListener('keydown', (e) => {
-  if ((e.metaKey || e.ctrlKey) && e.key === ',') { e.preventDefault(); openSettingsPanel() }
-})
 
 const ctx = {
   currentFolder: () => currentFolder,
@@ -102,17 +95,20 @@ initPalette({
   ctx
 })
 
-window.addEventListener('keydown', (e) => {
-  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'p') {
-    e.preventDefault()
-    openPalette({ mode: e.shiftKey ? 'commands' : 'files' }) // Cmd+Shift+P → command mode (>)
-  }
+// App-level shortcuts live in the native menu (main process); it forwards them here.
+window.api.onMenu((action) => {
+  if (action === 'palette-files') openPalette({ mode: 'files' })
+  else if (action === 'palette-commands') openPalette({ mode: 'commands' })
+  else if (action === 'settings') openSettingsPanel()
+  else if (action === 'find') editor.openFind()
+  else if (action === 'toggle-float') ctx.toggleFloat()
 })
 
 window.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
-    // Palette owns Esc while open (it stops propagation). If we get here, nothing is open → hide.
-    if (!isPaletteOpen() && !isSettingsOpen()) { e.preventDefault(); save(); window.api.hideWindow() }
+    // Palette/settings own Esc while open (they stopPropagation); the find panel closes on its own.
+    // If none are open, nothing is consuming Esc → hide the window.
+    if (!isPaletteOpen() && !isSettingsOpen() && !document.querySelector('.cm-search')) { e.preventDefault(); save(); window.api.hideWindow() }
   }
 }, true) // capture: but palette's handler calls stopPropagation when it consumes Esc
 
@@ -199,6 +195,7 @@ window.api.onFsEvent(async (ev) => {
   applyFont(s.fontFamily)
   applyFontSize(s.fontSize)
   applyLineHeight(s.lineHeight)
+  editor.setSpellcheck(s.spellcheck)
   syncTheme() // set data-theme for the resolved (system/light/dark) mode
   if (s.lastFolder) {
     currentFolder = s.lastFolder
