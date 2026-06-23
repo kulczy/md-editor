@@ -35,8 +35,8 @@ export function openSettings(opts) {
     <div class="settings" role="dialog" aria-label="Settings">
       <h2>Settings</h2>
 
+      <div class="group-title">General</div>
       <div class="settings-group">
-        <div class="group-title">General</div>
         <div class="setting">
           <label>Folder</label>
           <div class="folder-row"><span class="folder-path"></span><button id="set-change">Change…</button></div>
@@ -47,8 +47,8 @@ export function openSettings(opts) {
         </div>
       </div>
 
+      <div class="group-title">Appearance</div>
       <div class="settings-group">
-        <div class="group-title">Appearance</div>
         <div class="setting">
           <label>Theme</label>
           <div class="seg" id="set-theme">
@@ -71,8 +71,8 @@ export function openSettings(opts) {
         </div>
       </div>
 
+      <div class="group-title">Editor</div>
       <div class="settings-group">
-        <div class="group-title">Editor</div>
         <div class="setting">
           <label>Padding <span class="val" id="set-pad-val"></span></label>
           <input id="set-pad" type="range" min="16" max="160" step="2">

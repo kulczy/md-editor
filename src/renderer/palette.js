@@ -18,7 +18,10 @@ export function openPalette({ mode = 'files' } = {}) {
   el.className = 'palette-backdrop'
   el.innerHTML = `
     <div class="palette">
-      <input class="palette-input" type="text" placeholder="${mode === 'commands' ? '> command' : 'Search files…'}" />
+      <div class="palette-search">
+        <svg class="palette-search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input class="palette-input" type="text" placeholder="${mode === 'commands' ? '> command' : 'Search files…'}" />
+      </div>
       <ul class="palette-list"></ul>
     </div>`
   document.body.appendChild(el)
