@@ -16,8 +16,9 @@ body { font: 16px/1.6 -apple-system, system-ui, sans-serif; color: var(--text); 
   caret-color: var(--text);
 }
 .cm-editor.cm-focused { outline: none; }
+/* !important to beat CM's high-specificity focused-selection rule (default blue) */
 .cm-editor .cm-selectionBackground, .cm-editor.cm-focused .cm-selectionBackground,
-.cm-editor ::selection { background: var(--selection); }
+.cm-editor ::selection { background: var(--selection) !important; }
 /* outspecify CM's injected black .cm-cursor so the drawn caret follows the theme */
 .cm-editor .cm-cursor, .cm-editor .cm-dropCursor { border-left-color: var(--text); }
 
