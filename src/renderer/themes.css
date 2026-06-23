@@ -12,6 +12,9 @@
   --accent-rgb: var(--heading-rgb);
   --accent: rgb(var(--accent-rgb));
   --heading-rgb: 17, 17, 17; /* fallback (matches --heading #111) */
+  /* Neutral elevation overlay for chrome fills (cards, rows, segments): black on light
+     themes, white on dark — composited over --panel-bg it reads as solid theme-bound greys. */
+  --elev-rgb: 0, 0, 0;
   /* fallback theme (used if data-theme is missing/unknown) */
   --bg-rgb: 245, 245, 247;
   --text: #1a1a1a;
@@ -49,25 +52,25 @@
 
 /* ---- Dark themes ---- */
 [data-theme="Dark"] {
-  --heading-rgb: 242, 242, 242;
+  --heading-rgb: 242, 242, 242; --elev-rgb: 255, 255, 255;
   --bg-rgb: 28, 28, 30; --text: #e6e6e6; --heading: #f2f2f2; --link: #6cb6ff;
   --code-fg: #f0b0c0; --code-bg: rgba(255, 255, 255, 0.1); --marker: #6e7681; --checkbox: #6cb6ff;
   --selection: rgba(108, 182, 255, 0.22); --panel-bg: #2a2a2e; --panel-text: #e6e6e6; --border: rgba(255, 255, 255, 0.14);
 }
 [data-theme="One Dark"] {
-  --heading-rgb: 229, 192, 123;
+  --heading-rgb: 229, 192, 123; --elev-rgb: 255, 255, 255;
   --bg-rgb: 40, 44, 52; --text: #abb2bf; --heading: #e5c07b; --link: #61afef;
   --code-fg: #98c379; --code-bg: rgba(255, 255, 255, 0.07); --marker: #5c6370; --checkbox: #61afef;
   --selection: rgba(97, 175, 239, 0.22); --panel-bg: #2c313a; --panel-text: #abb2bf; --border: rgba(255, 255, 255, 0.1);
 }
 [data-theme="Dracula"] {
-  --heading-rgb: 189, 147, 249;
+  --heading-rgb: 189, 147, 249; --elev-rgb: 255, 255, 255;
   --bg-rgb: 40, 42, 54; --text: #f8f8f2; --heading: #bd93f9; --link: #8be9fd;
   --code-fg: #50fa7b; --code-bg: rgba(255, 255, 255, 0.07); --marker: #6272a4; --checkbox: #50fa7b;
   --selection: rgba(139, 233, 253, 0.22); --panel-bg: #343746; --panel-text: #f8f8f2; --border: rgba(255, 255, 255, 0.1);
 }
 [data-theme="Solarized Dark"] {
-  --heading-rgb: 238, 232, 213;
+  --heading-rgb: 238, 232, 213; --elev-rgb: 255, 255, 255;
   --bg-rgb: 0, 43, 54; --text: #93a1a1; --heading: #eee8d5; --link: #268bd2;
   --code-fg: #2aa198; --code-bg: rgba(255, 255, 255, 0.06); --marker: #586e75; --checkbox: #268bd2;
   --selection: rgba(38, 139, 210, 0.22); --panel-bg: #073642; --panel-text: #93a1a1; --border: rgba(255, 255, 255, 0.08);

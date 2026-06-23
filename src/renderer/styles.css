@@ -66,9 +66,9 @@ body { font: 16px/1.6 -apple-system, system-ui, sans-serif; color: var(--text); 
 .palette-list { list-style: none; margin: 0; padding: 8px; max-height: 52vh; overflow-y: auto; font-size: 14px; }
 /* each row is a faint card; active gets an accent tint + ring (image's selected row) */
 .palette-list li { padding: 11px 14px; margin-bottom: 4px; border-radius: 14px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  background: rgba(127,127,127,.05); transition: background .12s ease, box-shadow .12s ease; }
+  background: rgba(var(--elev-rgb),.05); transition: background .12s ease, box-shadow .12s ease; }
 .palette-list li:last-child { margin-bottom: 0; }
-.palette-list li:hover { background: rgba(127,127,127,.12); }
+.palette-list li:hover { background: rgba(var(--elev-rgb),.09); }
 .palette-list li.active { background: rgba(var(--accent-rgb),.16); box-shadow: 0 0 0 1px rgba(var(--accent-rgb),.28) inset; }
 
 .pin-indicator { position: fixed; top: 10px; right: 12px; opacity: .55; z-index: 50; line-height: 0; cursor: pointer; -webkit-app-region: no-drag; } /* svg uses currentColor → follows --text; click to unpin */
@@ -84,7 +84,7 @@ body { font: 16px/1.6 -apple-system, system-ui, sans-serif; color: var(--text); 
 .settings .group-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; opacity: .45; margin: 22px 0 9px 3px; }
 .settings h2 + .group-title { margin-top: 0; }
 /* layered card per section: faint flat fill */
-.settings-group { border: 1px solid var(--border); border-radius: 18px; padding: 15px 16px; background: rgba(127,127,127,.06); }
+.settings-group { border: 1px solid var(--border); border-radius: 18px; padding: 15px 16px; background: rgba(var(--elev-rgb),.05); }
 .settings-group .setting:last-child { margin-bottom: 0; }
 .settings .setting { margin-bottom: 16px; display: flex; flex-direction: column; gap: 7px; }
 .settings label { font-size: 13px; opacity: .8; display: flex; justify-content: space-between; }
@@ -93,13 +93,13 @@ body { font: 16px/1.6 -apple-system, system-ui, sans-serif; color: var(--text); 
 .settings input[type=range] { width: 100%; accent-color: var(--accent); }
 .settings .folder-row { display: flex; align-items: center; gap: 9px; }
 .settings .folder-path { flex: 1; font-size: 12px; opacity: .7; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.settings button, .settings select { font: inherit; font-size: 13px; padding: 5px 11px; border-radius: 8px; cursor: pointer; background: rgba(127,127,127,.12); color: inherit; border: 1px solid var(--border); transition: background .12s ease, border-color .12s ease; }
-.settings button:hover { background: rgba(127,127,127,.2); }
+.settings button, .settings select { font: inherit; font-size: 13px; padding: 5px 11px; border-radius: 8px; cursor: pointer; background: rgba(var(--elev-rgb),.08); color: inherit; border: 1px solid var(--border); transition: background .12s ease, border-color .12s ease; }
+.settings button:hover { background: rgba(var(--elev-rgb),.14); }
 .settings select { align-self: flex-start; }
 .settings .hotkey-btn { align-self: flex-start; min-width: 110px; text-align: center; }
 .settings .hotkey-btn.recording { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(var(--accent-rgb),.35); }
 /* pill segmented control: track + a lighter raised pill for the active cell (Daily/Weekly toggle) */
-.settings .seg { display: inline-flex; align-self: flex-start; gap: 3px; padding: 4px; border: 1px solid var(--border); border-radius: 999px; background: rgba(127,127,127,.12); }
+.settings .seg { display: inline-flex; align-self: flex-start; gap: 3px; padding: 4px; border: 1px solid var(--border); border-radius: 999px; background: rgba(var(--elev-rgb),.08); }
 .settings .seg button { border: 1px solid transparent; border-radius: 999px; padding: 6px 18px; background: transparent; opacity: .65; }
 .settings .seg button:hover { opacity: 1; }
-.settings .seg button.active { opacity: 1; border-color: var(--border); background: rgba(255,255,255,.12); box-shadow: 0 1px 2px rgba(0,0,0,.22); }
+.settings .seg button.active { opacity: 1; border-color: var(--border); background: rgba(var(--elev-rgb),.14); box-shadow: 0 1px 2px rgba(0,0,0,.22); }
