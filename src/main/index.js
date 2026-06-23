@@ -81,7 +81,8 @@ function createWindow() {
     height: b?.height ?? 640,
     x: b?.x,
     y: b?.y,
-    vibrancy: 'under-window', // native macOS translucency (frosted glass behind the window)
+    vibrancy: 'fullscreen-ui', // stronger frosted glass (blurs windows behind, not just wallpaper)
+    visualEffectState: 'active', // keep the glass even when the window isn't focused (e.g. pinned)
     backgroundColor: '#00000000', // transparent so the vibrancy material shows through
     titleBarStyle: 'customButtonsOnHover', // frameless; macOS reveals the traffic lights on hover (native)
     trafficLightPosition: { x: 18, y: 18 }, // center the lights in the taller title strip
